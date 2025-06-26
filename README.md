@@ -1,7 +1,5 @@
 # Glasswing Connect
 
-Una aplicación web moderna para la gestión de beneficiarios y escuelas, construida con Laravel y Vue.js.
-
 ## 🛠 Stack Tecnológico
 
 ### Backend
