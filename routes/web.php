@@ -26,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('registrations', App\Http\Controllers\RegistrationController::class)
         ->only(['index', 'show'])
         ->names('registrations');
+    Route::post('registrations', [App\Http\Controllers\RegistrationController::class, 'index'])
+        ->name('registrations.index');
     Route::get('registrations/{registration}/import', [App\Http\Controllers\RegistrationController::class, 'import'])
         ->name('registrations.import');
     Route::post('registrations/{registration}/process_import', [App\Http\Controllers\RegistrationController::class, 'process_import'])
