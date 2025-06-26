@@ -68,8 +68,8 @@ class RegistrationController extends Controller
         \Illuminate\Support\Facades\Log::info(print_r($result, true));
 
         return response()->json([
-            'message' => 'Procesamiento realizado con éxito.',
-            'registration_id' => $registration->id
+            'message' => $result['message'],
+            'success' => $result['success']
         ]);
     }
 }
