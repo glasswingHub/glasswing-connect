@@ -27,8 +27,9 @@
 
 - PHP 8.2 o superior
 - Composer
-- Node.js 18+ y npm
+- Node.js 22+ y npm
 - Git
+- Drivers PHP de Microsoft para SQL Server (https://www.youtube.com/watch?v=ylhT8qvQdEA)
 
 ## 🚀 Configuración del Entorno de Desarrollo
 
