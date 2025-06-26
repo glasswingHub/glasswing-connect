@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Registration extends Model
 {
     use HasFactory;
-    protected $connection = 'sqlsrv';
+    protected $connection = 'gwforms';
     protected $table = 'FormularioRegisto2';
 }
