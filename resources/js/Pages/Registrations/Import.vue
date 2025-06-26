@@ -13,10 +13,12 @@ const props = defineProps({
 });
 
 const message = ref('');
+const loading = ref(false);
 const page = usePage();
 
 async function handleImport() {
   message.value = '';
+  loading.value = true;
   try {
     const response = await axios.post(
       `/registrations/${props.registration.id}/process_import`,
@@ -25,6 +27,8 @@ async function handleImport() {
     message.value = response.data.message;
   } catch (error) {
     message.value = error.response?.data?.message || 'Error al importar.';
+  } finally {
+    loading.value = false;
   }
 }
 </script>
@@ -35,7 +39,17 @@ async function handleImport() {
     <div class="max-w-2xl mx-auto p-4">
       <form @submit.prevent="handleImport">
         <!-- Puedes agregar campos aquí si el import requiere datos adicionales -->
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Importar</button>
+        <button 
+          type="submit" 
+          :disabled="loading"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          <svg v-if="loading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ loading ? 'Importando...' : 'Importar' }}
+        </button>
       </form>
 
       <div v-if="message" class="mt-4 p-2 bg-green-100 text-green-800 rounded">{{ message }}</div>

@@ -119,7 +119,7 @@ class ProcessRegistration
             $registration->updated_at = Carbon::now();
             
             // if($registration->save()){
-            if(false){
+            if(true){
                 Log::info('Registration processed successfully', [
                     'data' => $registration,
                     'result' => $registration
