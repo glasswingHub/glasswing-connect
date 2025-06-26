@@ -19,8 +19,6 @@ class ProcessRegistration
                     $registration->id
                 ])[0];
 
-            \Illuminate\Support\Facades\Log::info('>>>>>>> ProcessRegistration');
-            \Illuminate\Support\Facades\Log::info(print_r($data, true));
             
             if($data == null){
                 Log::error('Error processing registration', [
@@ -32,8 +30,6 @@ class ProcessRegistration
                     'message' => 'No se encontró el registro'
                 ];
             }
-
-            \Illuminate\Support\Facades\Log::info('>>>>>>> ProcessRegistration x2');
 
             if($data->importado == "1"){
                 Log::error('Error processing registration', [
@@ -118,8 +114,7 @@ class ProcessRegistration
             // $registration->userId = null;
             $registration->updated_at = Carbon::now();
             
-            // if($registration->save()){
-            if(true){
+            if($registration->save()){
                 Log::info('Registration processed successfully', [
                     'data' => $registration,
                     'result' => $registration

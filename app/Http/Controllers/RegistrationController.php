@@ -70,9 +70,6 @@ class RegistrationController extends Controller
         $processRegistration = new ProcessRegistration();
         $result = $processRegistration->execute($registration, $this->currentGroup()['code']);
         
-        \Illuminate\Support\Facades\Log::info('>>>>>>> RegistrationController#process_import');
-        \Illuminate\Support\Facades\Log::info(print_r($result, true));
-
         return response()->json([
             'message' => $result['message'],
             'success' => $result['success']
