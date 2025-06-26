@@ -7,9 +7,22 @@ use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\Registration;
 use App\Services\ProcessRegistration;
+use Illuminate\Support\Facades\Session;
 
 class RegistrationController extends Controller
 {
+    
+    public function setGroup(Request $request)
+    {
+        $selectedOption = $request->input('group');
+        Session::put('group', $selectedOption);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Opción seleccionada guardada correctamente'
+        ]);
+    }
+    
     /**
      * Display a listing of the resource.
      */
@@ -25,10 +38,10 @@ class RegistrationController extends Controller
         }
         $registrations = $query->paginate(10);
 
-                            
-
         return Inertia::render('Registrations/Index', [
             'registrations' => $registrations,
+            'groups' => $this->groups(),
+            'currentGroup' => $this->currentGroup(),
         ]);
     }
 
@@ -43,26 +56,19 @@ class RegistrationController extends Controller
     public function import($id)
     {
         $registration = Registration::findOrFail($id);
+
         return Inertia::render('Registrations/Import', [
             'registration' => $registration,
+            'groups' => $this->groups(),
+            'currentGroup' => $this->currentGroup(),
         ]);
     }
 
     public function process_import(Request $request, Registration $registration)
     {
-        // WHEN @idsede = 666 AND @diplomado = 114 THEN 9588  -->	S.S. / Diplomado de Estudio
-        // WHEN @idsede = 666 AND @diplomado = 118 THEN 9587  -->	S.S. / Diplomado de Empleo
-        // WHEN @idsede = 666 AND @diplomado = 119 THEN 9589  -->	S.S. / Diplomado de Emprendimiento
-        // WHEN @idsede = 1128 AND @diplomado = 114 THEN 9638  -->	Santa Ana / Diplomado de Estudio
-        // WHEN @idsede = 1128 AND @diplomado = 118 THEN 9637  -->	Santa Ana / Diplomado de Empleo
-        // WHEN @idsede = 1128 AND @diplomado = 119 THEN 9639  -->	Santa Ana / Diplomado de Emprendimiento
-        // WHEN @idsede = 2968 AND @diplomado = 114 THEN 7745  -->	San Miguel / Diplomado de Estudio
-        // WHEN @idsede = 2968 AND @diplomado = 118 THEN 7746  -->	San Miguel / Diplomado de Empleo
-        // WHEN @idsede = 2968 AND @diplomado = 119 THEN 7747  -->	San Miguel / Diplomado de Emprendimiento
-        $groupId = 9588;
 
         $processRegistration = new ProcessRegistration();
-        $result = $processRegistration->execute($registration, $groupId);
+        $result = $processRegistration->execute($registration, $this->currentGroup()['code']);
         
         \Illuminate\Support\Facades\Log::info('>>>>>>> RegistrationController#process_import');
         \Illuminate\Support\Facades\Log::info(print_r($result, true));
@@ -71,5 +77,23 @@ class RegistrationController extends Controller
             'message' => $result['message'],
             'success' => $result['success']
         ]);
+    }
+
+    private function currentGroup(){
+        return Session::get('group');
+    }
+
+    private function groups(){
+        return [
+            ['code' => 9588, 'value' => 'San Salvador / Diplomado de Estudio'],
+            ['code' => 9587, 'value' => 'San Salvador / Diplomado de Empleo'],
+            ['code' => 9589, 'value' => 'San Salvador / Diplomado de Emprendimiento'],
+            ['code' => 9638, 'value' => 'Santa Ana / Diplomado de Estudio'],
+            ['code' => 9637, 'value' => 'Santa Ana / Diplomado de Empleo'],
+            ['code' => 9639, 'value' => 'Santa Ana / Diplomado de Emprendimiento'],
+            ['code' => 7745, 'value' => 'San Miguel / Diplomado de Estudio'],
+            ['code' => 7746, 'value' => 'San Miguel / Diplomado de Empleo'],
+            ['code' => 7747, 'value' => 'San Miguel / Diplomado de Emprendimiento']
+        ];
     }
 }

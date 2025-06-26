@@ -4,11 +4,20 @@ import { Head, Link } from '@inertiajs/vue3';
 import Pagination from '@/Components/Pagination.vue';
 import PaginationInfo from '@/Components/PaginationInfo.vue';
 import SearchForm from '@/Components/SearchForm.vue';
+import OptionSelector from '@/Components/OptionSelector.vue';
 
 const props = defineProps({
     registrations: {
         type: Object,
         required: true
+    },
+    groups: {
+        type: Array,
+        default: () => []
+    },
+    currentGroup: {
+        type: Object,
+        default: null
     }
 });
 </script>
@@ -23,6 +32,8 @@ const props = defineProps({
             </h2>
         </template>
 
+        
+
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
@@ -33,6 +44,13 @@ const props = defineProps({
                                 Personas Registradas
                             </h3>
                         </div>
+
+                        <!-- Options Selector -->
+                        <OptionSelector
+                            :options="groups"
+                            :selected-option="currentGroup"
+                            route-name="registrations.set_group"
+                        />
 
                         <!-- Search Form -->
                         <SearchForm

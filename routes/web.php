@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function () {
         ->name('registrations.import');
     Route::post('registrations/{registration}/process_import', [App\Http\Controllers\RegistrationController::class, 'process_import'])
         ->name('registrations.process_import');
+    Route::post('registrations/set_group', [App\Http\Controllers\RegistrationController::class, 'setGroup'])
+        ->name('registrations.set_group');
 });
 
 require __DIR__.'/auth.php';
