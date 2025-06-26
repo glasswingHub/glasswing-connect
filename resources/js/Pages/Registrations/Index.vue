@@ -2,6 +2,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import Pagination from '@/Components/Pagination.vue';
+import PaginationInfo from '@/Components/PaginationInfo.vue';
 
 defineProps({
     registrations: {
@@ -32,6 +34,10 @@ defineProps({
                             </h3>
                         </div>
 
+                        <div class="px-6">
+                            <PaginationInfo :registrations="registrations" />
+                        </div>
+
                         <!-- Table -->
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -41,16 +47,16 @@ defineProps({
                                             ID
                                         </th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Nombre
+                                            Nombres
                                         </th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Email
+                                            Apellidos
                                         </th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Teléfono
                                         </th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Fecha de Registro
+                                            Fecha de creación
                                         </th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Acciones
@@ -63,13 +69,13 @@ defineProps({
                                             {{ registration.id }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ registration.name || registration.nombre || 'N/A' }}
+                                            {{ registration.nombres || '—' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ registration.email || registration.correo || 'N/A' }}
+                                            {{ registration.apellidos || '—' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ registration.phone || registration.telefono || registration.phone_number || 'N/A' }}
+                                            {{ registration.telefono || '—' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ registration.created_at ? new Date(registration.created_at).toLocaleDateString() : 'N/A' }}
@@ -83,6 +89,7 @@ defineProps({
                                                     Ver
                                                 </Link>
                                                 <Link
+                                                    v-if="registration.Importado === null"
                                                     :href="route('registrations.import', registration.id)"
                                                     class="text-green-600 hover:text-green-900"
                                                 >
@@ -115,57 +122,9 @@ defineProps({
                         </div>
 
                         <!-- Pagination -->
-                        <!-- <div v-if="registrations.data && registrations.data.length > 0" class="mt-6">
-                            <nav class="flex items-center justify-between">
-                                <div class="flex-1 flex justify-between sm:hidden">
-                                    <Link
-                                        v-if="registrations.prev_page_url"
-                                        :href="registrations.prev_page_url"
-                                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                                    >
-                                        Anterior
-                                    </Link>
-                                    <Link
-                                        v-if="registrations.next_page_url"
-                                        :href="registrations.next_page_url"
-                                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                                    >
-                                        Siguiente
-                                    </Link>
-                                </div>
-                                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                                    <div>
-                                        <p class="text-sm text-gray-700">
-                                            Mostrando
-                                            <span class="font-medium">{{ registrations.from }}</span>
-                                            a
-                                            <span class="font-medium">{{ registrations.to }}</span>
-                                            de
-                                            <span class="font-medium">{{ registrations.total }}</span>
-                                            resultados
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                                            <Link
-                                                v-for="(link, index) in registrations.links"
-                                                :key="index"
-                                                :href="link.url"
-                                                v-html="link.label"
-                                                :class="[
-                                                    'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
-                                                    link.url === null
-                                                        ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'
-                                                        : link.active
-                                                        ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                                                ]"
-                                            />
-                                        </nav>
-                                    </div>
-                                </div>
-                            </nav>
-                        </div> -->
+                        <div class="mt-4">
+                            <Pagination :links="registrations.links" />
+                        </div>
                     </div>
                 </div>
             </div>

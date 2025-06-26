@@ -9,9 +9,22 @@ use App\Models\Registration;
 
 class RegistrationController extends Controller
 {
-    public function index()
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
     {
-        $registrations = Registration::paginate(10);
+        $query = Registration::where('Importado', null)
+                            ->orderBy('created_at', 'desc')
+                            ->orderBy('id', 'desc');
+        if($request->has('search')){
+            $query->where('nombres', 'like', '%'.$request->search.'%')
+                ->orWhere('apellidos', 'like', '%'.$request->search.'%');
+        }
+        $registrations = $query->paginate(10);
+
+                            
+
         return Inertia::render('Registrations/Index', [
             'registrations' => $registrations,
         ]);
