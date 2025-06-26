@@ -45,7 +45,6 @@ class GoogleController extends Controller
 
             return redirect()->route('login')->withErrors(['email' => 'Google authentication failed. Please try again.']);
         } catch (\Exception $e) {
-            dd($e);
             return redirect()->route('login')->withErrors(['email' => 'Google authentication failed. Please try again.']);
         }
     }
