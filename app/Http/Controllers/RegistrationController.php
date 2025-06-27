@@ -82,15 +82,7 @@ class RegistrationController extends Controller
 
     private function groups(){
         return [
-            ['code' => 9588, 'value' => 'San Salvador / Diplomado de Estudio'],
-            ['code' => 9587, 'value' => 'San Salvador / Diplomado de Empleo'],
-            ['code' => 9589, 'value' => 'San Salvador / Diplomado de Emprendimiento'],
-            ['code' => 9638, 'value' => 'Santa Ana / Diplomado de Estudio'],
-            ['code' => 9637, 'value' => 'Santa Ana / Diplomado de Empleo'],
-            ['code' => 9639, 'value' => 'Santa Ana / Diplomado de Emprendimiento'],
-            ['code' => 7745, 'value' => 'San Miguel / Diplomado de Estudio'],
-            ['code' => 7746, 'value' => 'San Miguel / Diplomado de Empleo'],
-            ['code' => 7747, 'value' => 'San Miguel / Diplomado de Emprendimiento']
+            ['code' => 11238, 'value' => 'Criptonomía 1']
         ];
     }
 }
