@@ -15,7 +15,7 @@ class ProcessRegistration
         try {
             // Call the stored procedure using the sqlsrv connection
             $data = DB::connection('gwforms')
-                ->select('EXEC spImportacionJuventud ?', [
+                ->select('EXEC spImportacionJuventud2 ?', [
                     $registration->id
                 ])[0];
 
@@ -44,7 +44,8 @@ class ProcessRegistration
             
             $birthDate = Carbon::createFromFormat('Y-m-d',$registration->fechaNac);
 
-            $beneficiary = new \App\Models\Beneficiary();
+            $beneficiary = \App\Models\Beneficiary::firstOrNew(['DNI' => $data->identidad]);
+
             $beneficiary->DNI = $data->identidad;
             $beneficiary->year = $data->Anio;
             $beneficiary->name = $data->nombres;
@@ -55,7 +56,7 @@ class ProcessRegistration
             $beneficiary->address = $data->direccion;
             $beneficiary->fkIdTypeBeneficiarity = $data->tipoParticipante;
             $beneficiary->first_year_of_participation = $data->Nuevo;
-            // $beneficiary->imported_by = null;
+            $beneficiary->imported_by = 9999;
             $beneficiary->fkCodeCountry = "+503";
             $beneficiary->date_imported = Carbon::now();
 
@@ -71,8 +72,7 @@ class ProcessRegistration
                 ];
             }
 
-            $beneficiarySchool = new \App\Models\BeneficiarySchool();
-            $beneficiaryGroup = new \App\Models\BeneficiaryGroup();
+            $beneficiarySchool = \App\Models\BeneficiarySchool::firstOrNew(['fkIdBeneficiary' => $beneficiary->id]);
             
             $beneficiarySchool->fkCode = $data->code;
             $beneficiarySchool->fkIdBeneficiary = $beneficiary->id;
@@ -94,6 +94,8 @@ class ProcessRegistration
                 ];
             }
  
+            $beneficiaryGroup = \App\Models\BeneficiaryGroup::firstOrNew(['fkIdBeneficiary' => $beneficiary->id]);
+
             $beneficiaryGroup->fkIdBeneficiary = $beneficiary->id;
             $beneficiaryGroup->voluntary_state_id = 1;
             $beneficiaryGroup->fkIdGroupschool = $groupId;

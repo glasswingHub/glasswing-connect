@@ -29,12 +29,12 @@ class RegistrationController extends Controller
     public function index(Request $request)
     {
         $query = Registration::where('Importado', null)
-                            ->where('pais', 7)
                             ->orderBy('created_at', 'desc')
                             ->orderBy('id', 'desc');
         if($request->has('search')){
-            $query->where('nombres', 'like', '%'.$request->search.'%')
-                ->orWhere('apellidos', 'like', '%'.$request->search.'%');
+            $query->whereRaw('nombres COLLATE Latin1_General_CI_AI LIKE ?', ['%'.$request->search.'%'])
+                ->orWhereRaw('apellidos COLLATE Latin1_General_CI_AI LIKE ?', ['%'.$request->search.'%'])
+                ->orWhereRaw('identidad = ?', [$request->search]);
         }
         $registrations = $query->paginate(10);
 
@@ -82,7 +82,8 @@ class RegistrationController extends Controller
 
     private function groups(){
         return [
-            ['code' => 11238, 'value' => 'Criptonomía 1']
+            ['code' => 11453, 'value' => 'Criptonomía 1'],
+            ['code' => 11452, 'value' => 'Criptonomía 2']
         ];
     }
 }
