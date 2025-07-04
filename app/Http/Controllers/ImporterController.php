@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Importer;
+use App\Models\ImporterColumn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -52,15 +53,31 @@ class ImporterController extends Controller
             'name' => 'required|string|max:255',
             'source_table' => 'required|string|max:255',
             'target_table' => 'required|in:volunteerings,beneficiaries',
-            'active' => 'boolean'
+            'active' => 'boolean',
+            'column_mappings' => 'array',
+            'column_mappings.*.source_column' => 'required_with:column_mappings.*.target_column|string',
+            'column_mappings.*.target_column' => 'required_with:column_mappings.*.source_column|string',
         ]);
 
-        Importer::create([
+        $importer = Importer::create([
             'name' => $request->name,
             'source_table' => $request->source_table,
             'target_table' => $request->target_table,
             'active' => $request->active ?? true,
         ]);
+
+        // Store column mappings if provided
+        if ($request->has('column_mappings') && is_array($request->column_mappings)) {
+            foreach ($request->column_mappings as $mapping) {
+                if (!empty($mapping['source_column']) && !empty($mapping['target_column'])) {
+                    ImporterColumn::create([
+                        'importer_id' => $importer->id,
+                        'source_column' => $mapping['source_column'],
+                        'target_column' => $mapping['target_column'],
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('importers.index')
             ->with('success', 'Importador creado exitosamente');
@@ -72,9 +89,11 @@ class ImporterController extends Controller
     public function show(string $id)
     {
         $importer = Importer::withTrashed()->findOrFail($id);
+        $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column']);
         
         return Inertia::render('Importers/Show', [
             'importer' => $importer,
+            'columnMappings' => $columnMappings,
             'auth' => [
                 'user' => auth()->user()
             ]
@@ -87,9 +106,11 @@ class ImporterController extends Controller
     public function edit(string $id)
     {
         $importer = Importer::withTrashed()->findOrFail($id);
+        $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column']);
         
         return Inertia::render('Importers/Edit', [
             'importer' => $importer,
+            'columnMappings' => $columnMappings,
             'targetTableOptions' => $this->getTargetTableOptions(),
             'sourceTableOptions' => $this->getSourceTableOptions(),
             'auth' => [
@@ -109,7 +130,10 @@ class ImporterController extends Controller
             'name' => 'required|string|max:255',
             'source_table' => 'required|string|max:255',
             'target_table' => 'required|in:volunteerings,beneficiaries',
-            'active' => 'boolean'
+            'active' => 'boolean',
+            'column_mappings' => 'array',
+            'column_mappings.*.source_column' => 'required_with:column_mappings.*.target_column|string',
+            'column_mappings.*.target_column' => 'required_with:column_mappings.*.source_column|string',
         ]);
 
         $importer->update([
@@ -118,6 +142,25 @@ class ImporterController extends Controller
             'target_table' => $request->target_table,
             'active' => $request->active ?? true,
         ]);
+
+        // Update column mappings
+        if ($request->has('column_mappings')) {
+            // Delete existing mappings
+            $importer->columnMappings()->delete();
+            
+            // Create new mappings
+            if (is_array($request->column_mappings)) {
+                foreach ($request->column_mappings as $mapping) {
+                    if (!empty($mapping['source_column']) && !empty($mapping['target_column'])) {
+                        ImporterColumn::create([
+                            'importer_id' => $importer->id,
+                            'source_column' => $mapping['source_column'],
+                            'target_column' => $mapping['target_column'],
+                        ]);
+                    }
+                }
+            }
+        }
 
         return redirect()->route('importers.index')
             ->with('success', 'Importador actualizado exitosamente');
@@ -233,5 +276,16 @@ class ImporterController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al obtener las columnas de la tabla'], 500);
         }
+    }
+
+    /**
+     * Get column mappings for a specific importer.
+     */
+    public function getColumnMappings(string $id)
+    {
+        $importer = Importer::findOrFail($id);
+        $mappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column']);
+        
+        return response()->json($mappings);
     }
 }

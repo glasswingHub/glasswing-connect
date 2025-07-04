@@ -8,6 +8,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import InputSelect from '@/Components/InputSelect.vue';
+import ColumnMapping from '@/Components/ColumnMapping.vue';
 
 defineProps({
     targetTableOptions: Array,
@@ -19,6 +20,7 @@ const form = useForm({
     source_table: '',
     target_table: '',
     active: true,
+    column_mappings: [],
 });
 
 const isLoadingColumns = ref(false);
@@ -228,6 +230,17 @@ const submit = () => {
                                 <div v-else class="text-gray-500 text-center py-4">
                                     No se encontraron columnas para esta tabla.
                                 </div>
+                            </div>
+
+                            <!-- Mapeo de Columnas -->
+                            <div v-if="sourceTableColumns.length > 0 && targetTableColumns.length > 0" class="mt-8">
+                                <ColumnMapping
+                                    :source-columns="sourceTableColumns"
+                                    :target-columns="targetTableColumns"
+                                    :existing-mappings="form.column_mappings"
+                                    @update:mappings="form.column_mappings = $event"
+                                />
+                                <InputError class="mt-2" :message="form.errors.column_mappings" />
                             </div>
 
                             <div class="flex items-center justify-end mt-6">

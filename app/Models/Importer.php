@@ -20,4 +20,12 @@ class Importer extends Model
     protected $casts = [
         'active' => 'boolean',
     ];
+
+    /**
+     * Get the column mappings for this importer.
+     */
+    public function columnMappings()
+    {
+        return $this->hasMany(ImporterColumn::class);
+    }
 }
