@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Importer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ImporterController extends Controller
@@ -37,10 +38,8 @@ class ImporterController extends Controller
     public function create()
     {
         return Inertia::render('Importers/Create', [
-            'targetTableOptions' => [
-                ['value' => 'volunteerings', 'label' => 'Volunteerings'],
-                ['value' => 'beneficiaries', 'label' => 'Beneficiaries']
-            ]
+            'targetTableOptions' => $this->getTargetTableOptions(),
+            'sourceTableOptions' => $this->getSourceTableOptions()
         ]);
     }
 
@@ -91,10 +90,8 @@ class ImporterController extends Controller
         
         return Inertia::render('Importers/Edit', [
             'importer' => $importer,
-            'targetTableOptions' => [
-                ['value' => 'volunteerings', 'label' => 'Volunteerings'],
-                ['value' => 'beneficiaries', 'label' => 'Beneficiaries']
-            ],
+            'targetTableOptions' => $this->getTargetTableOptions(),
+            'sourceTableOptions' => $this->getSourceTableOptions(),
             'auth' => [
                 'user' => auth()->user()
             ]
@@ -160,5 +157,81 @@ class ImporterController extends Controller
 
         return redirect()->route('importers.index')
             ->with('success', 'Importador eliminado permanentemente');
+    }
+
+    /**
+     * Get target table options for the form.
+     */
+    private function getTargetTableOptions(): array
+    {
+        return [
+            ['value' => 'volunteerings', 'label' => 'Volunteerings'],
+            ['value' => 'beneficiaries', 'label' => 'Beneficiaries']
+        ];
+    }
+
+    /**
+     * Get source table options from the gwforms database.
+     */
+    private function getSourceTableOptions(): array
+    {
+        return collect(DB::connection('gwforms')
+            ->select("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME"))
+            ->map(function ($table) {
+                return [
+                    'value' => $table->name,
+                    'label' => $table->name
+                ];
+            })
+            ->toArray();
+    }
+
+    /**
+     * Get table columns from the gwforms database.
+     */
+    public function getSourceTableColumns(Request $request)
+    {
+        $request->validate([
+            'table_name' => 'required|string'
+        ]);
+
+        try {
+            $columns = collect(DB::connection('gwforms')
+                ->select("SELECT COLUMN_NAME as name, DATA_TYPE as type FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ? ORDER BY ORDINAL_POSITION", [$request->table_name]))
+                ->map(function ($column) {
+                    return [
+                        'value' => $column->name,
+                        'label' => $column->name . ' (' . $column->type . ')'
+                    ];
+                })
+                ->toArray();
+
+            return response()->json($columns);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener las columnas de la tabla'], 500);
+        }
+    }
+
+    public function getTargetTableColumns(Request $request)
+    {
+        $request->validate([
+            'table_name' => 'required|string|in:volunteerings,beneficiaries'
+        ]);
+
+        try {
+            $columns = collect(DB::connection('gwdata')
+                ->select("SELECT COLUMN_NAME as name, DATA_TYPE as type FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? ORDER BY ORDINAL_POSITION", [$request->table_name]))
+                ->map(function ($column) {
+                    return [
+                        'value' => $column->name,
+                        'label' => $column->name . ' (' . $column->type . ')'
+                    ];
+                })
+                ->toArray();
+
+            return response()->json($columns);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener las columnas de la tabla'], 500);
+        }
     }
 }

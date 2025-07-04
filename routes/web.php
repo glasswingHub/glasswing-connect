@@ -25,6 +25,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('importers', ImporterController::class);
     Route::patch('importers/{importer}/restore', [ImporterController::class, 'restore'])->name('importers.restore');
     Route::delete('importers/{importer}/force-delete', [ImporterController::class, 'forceDelete'])->name('importers.force-delete');
+    Route::post('importers/get-source-table-columns', [ImporterController::class, 'getSourceTableColumns'])->name('importers.get-source-table-columns');
+    Route::post('importers/get-target-table-columns', [ImporterController::class, 'getTargetTableColumns'])->name('importers.get-target-table-columns');
 
     Route::resource('registrations', App\Http\Controllers\RegistrationController::class)
         ->only(['index', 'show'])
