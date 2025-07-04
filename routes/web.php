@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ImporterController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -20,6 +21,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('users/{user}/force-delete', [UserController::class, 'forceDelete'])->name('users.force-delete');
     Route::post('users', [UserController::class, 'index'])
         ->name('users.index');
+
+    Route::resource('importers', ImporterController::class);
+    Route::patch('importers/{importer}/restore', [ImporterController::class, 'restore'])->name('importers.restore');
+    Route::delete('importers/{importer}/force-delete', [ImporterController::class, 'forceDelete'])->name('importers.force-delete');
 
     Route::resource('registrations', App\Http\Controllers\RegistrationController::class)
         ->only(['index', 'show'])

@@ -51,6 +51,12 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Personas registradas
                                 </NavLink>
+                                <NavLink
+                                    :href="route('importers.index')"
+                                    :active="route().current('importers')"
+                                >
+                                    Importadores
+                                </NavLink>
                             </div>
                         </div>
 
@@ -169,6 +175,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('registrations')"
                         >
                             Personas registradas
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('importers.index')"
+                            :active="route().current('importers')"
+                        >
+                            Importadores
                         </ResponsiveNavLink>
                     </div>
 
