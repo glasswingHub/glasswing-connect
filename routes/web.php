@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ImporterController;
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ImportRecordController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,6 +30,14 @@ Route::middleware('auth')->group(function () {
     Route::post('importers/get-source-table-columns', [ImporterController::class, 'getSourceTableColumns'])->name('importers.get-source-table-columns');
     Route::post('importers/get-target-table-columns', [ImporterController::class, 'getTargetTableColumns'])->name('importers.get-target-table-columns');
     Route::get('importers/{importer}/column-mappings', [ImporterController::class, 'getColumnMappings'])->name('importers.get-column-mappings');
+
+    Route::get('imports', [ImportController::class, 'index'])
+        ->name('imports.index');
+    Route::get('imports/{importer}/records', [ImportRecordController::class, 'records'])
+        ->name('import-records.index');
+    Route::get('imports/{importer}/records/{record}', [ImportRecordController::class, 'show'])
+        ->name('import-records.show');
+    
 
     Route::resource('registrations', App\Http\Controllers\RegistrationController::class)
         ->only(['index', 'show'])

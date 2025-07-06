@@ -57,6 +57,12 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Importadores
                                 </NavLink>
+                                <NavLink
+                                    :href="route('imports.index')"
+                                    :active="route().current('imports')"
+                                >
+                                    Importaciones
+                                </NavLink>
                             </div>
                         </div>
 
@@ -181,6 +187,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('importers')"
                         >
                             Importadores
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('imports.index')"
+                            :active="route().current('imports')"
+                        >
+                            Importaciones
                         </ResponsiveNavLink>
                     </div>
 
