@@ -50,4 +50,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the importers associated with this user.
+     */
+    public function importers()
+    {
+        return $this->belongsToMany(Importer::class);
+    }
 }

@@ -6,6 +6,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Checkbox from '@/Components/Checkbox.vue';
+import PageActions from '@/Components/PageActions.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 
 const props = defineProps({
     user: Object,
@@ -21,71 +23,81 @@ const form = useForm({
 const submit = () => {
     form.put(route('users.update', props.user.id));
 };
+
+const pageActions = [
+    {
+        href: route('users.show', props.user.id),
+        label: 'Ver detalle'
+    },
+    {
+        href: route('users.index'),
+        label: 'Volver al listado',
+    }
+]
 </script>
 
 <template>
     <Head title="Editar Usuario" />
 
     <AuthenticatedLayout>
+
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Editar Usuario
-            </h2>
+            <PageHeader 
+                title="Editar Usuario"
+            />
         </template>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900">
-                        <form @submit.prevent="submit" class="space-y-6">
-                            <div>
-                                <InputLabel for="name" value="Nombre" />
-                                <TextInput
-                                    id="name"
-                                    type="text"
-                                    class="mt-1 block w-full"
-                                    v-model="form.name"
-                                    required
-                                    autofocus
-                                    autocomplete="name"
-                                />
-                                <InputError class="mt-2" :message="form.errors.name" />
-                            </div>
+        <PageActions 
+            title="Editar Usuario"
+            :actions="pageActions"
+        />
 
-                            <div>
-                                <InputLabel for="email" value="Email" />
-                                <TextInput
-                                    id="email"
-                                    type="email"
-                                    class="mt-1 block w-full"
-                                    v-model="form.email"
-                                    required
-                                    autocomplete="username"
-                                />
-                                <InputError class="mt-2" :message="form.errors.email" />
-                            </div>
-
-                            <div class="flex items-center">
-                                <Checkbox
-                                    id="active"
-                                    v-model:checked="form.active"
-                                />
-                                <InputLabel for="active" value="Usuario Activo" class="ml-2" />
-                            </div>
-
-                            <div class="flex items-center justify-end mt-4">
-                                <PrimaryButton
-                                    class="ml-4"
-                                    :class="{ 'opacity-25': form.processing }"
-                                    :disabled="form.processing"
-                                >
-                                    Actualizar Usuario
-                                </PrimaryButton>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+        <form @submit.prevent="submit" class="space-y-6">
+            <div>
+                <InputLabel for="name" value="Nombre" />
+                <TextInput
+                    id="name"
+                    type="text"
+                    class="mt-1 block w-full"
+                    v-model="form.name"
+                    required
+                    autofocus
+                    autocomplete="name"
+                />
+                <InputError class="mt-2" :message="form.errors.name" />
             </div>
-        </div>
+
+            <div>
+                <InputLabel for="email" value="Email" />
+                <TextInput
+                    id="email"
+                    type="email"
+                    class="mt-1 block w-full"
+                    v-model="form.email"
+                    required
+                    autocomplete="username"
+                />
+                <InputError class="mt-2" :message="form.errors.email" />
+            </div>
+
+            <div class="flex items-center">
+                <Checkbox
+                    id="active"
+                    v-model:checked="form.active"
+                />
+                <InputLabel for="active" value="Usuario Activo" class="ml-2" />
+            </div>
+
+            <div class="flex items-center justify-end mt-4">
+                <PrimaryButton
+                    class="ml-4"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                >
+                    Actualizar Usuario
+                </PrimaryButton>
+            </div>
+        </form>
+
     </AuthenticatedLayout>
 </template> 

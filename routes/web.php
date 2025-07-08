@@ -21,8 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('users', UserController::class);
     Route::patch('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
     Route::delete('users/{user}/force-delete', [UserController::class, 'forceDelete'])->name('users.force-delete');
-    Route::post('users', [UserController::class, 'index'])
-        ->name('users.index');
+
 
     Route::resource('importers', ImporterController::class);
     Route::patch('importers/{importer}/restore', [ImporterController::class, 'restore'])->name('importers.restore');
@@ -34,16 +33,18 @@ Route::middleware('auth')->group(function () {
     Route::get('imports', [ImportController::class, 'index'])
         ->name('imports.index');
     Route::get('imports/{importer}/records', [ImportRecordController::class, 'records'])
-        ->name('import-records.index');
+        ->name('import-records.index')
+        ->middleware('validate.importer.access');
     Route::get('imports/{importer}/records/{record}', [ImportRecordController::class, 'show'])
-        ->name('import-records.show');
-    
+        ->name('import-records.show')
+        ->middleware('validate.importer.access');
+    Route::post('imports/{importer}/records/{record}/process_import', [ImportRecordController::class, 'process_import'])
+        ->name('import-records.process_import')
+        ->middleware('validate.importer.access');
 
     Route::resource('registrations', App\Http\Controllers\RegistrationController::class)
         ->only(['index', 'show'])
         ->names('registrations');
-    Route::post('registrations', [App\Http\Controllers\RegistrationController::class, 'index'])
-        ->name('registrations.index');
     Route::get('registrations/{registration}/import', [App\Http\Controllers\RegistrationController::class, 'import'])
         ->name('registrations.import');
     Route::post('registrations/{registration}/process_import', [App\Http\Controllers\RegistrationController::class, 'process_import'])

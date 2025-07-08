@@ -13,6 +13,9 @@ class ImporterColumn extends Model
         'importer_id',
         'source_column',
         'target_column',
+        'display_name',
+        'primary_key',
+        'show_in_list',
     ];
 
     /**

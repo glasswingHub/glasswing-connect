@@ -1,6 +1,8 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import InputSelect from '@/Components/InputSelect.vue';
+import TextInput from '@/Components/TextInput.vue';
+import Checkbox from '@/Components/Checkbox.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 
@@ -39,7 +41,10 @@ const addMapping = () => {
     columnMappings.value.push({
         id: Date.now(), // Temporary ID for new mappings
         source_column: '',
-        target_column: ''
+        target_column: '',
+        display_name: '',
+        primary_key: false,
+        show_in_list: true
     });
 };
 
@@ -143,13 +148,65 @@ const getAvailableTargetColumns = () => {
                     </div>
                 </div>
 
+                <!-- Display Name -->
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Nombre a Mostrar
+                    </label>
+                    <TextInput
+                        v-model="mapping.display_name"
+                        @update:model-value="updateMapping(index, 'display_name', $event)"
+                        type="text"
+                        placeholder="Nombre para mostrar en la interfaz"
+                        class="w-full"
+                    />
+                </div>
+
+                <!-- Options Row -->
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Primary Key -->
+                    <div class="flex items-center">
+                        <Checkbox
+                            v-model="mapping.primary_key"
+                            @update:model-value="updateMapping(index, 'primary_key', $event)"
+                            name="primary_key"
+                        />
+                        <label class="ml-2 text-sm font-medium text-gray-700">
+                            Es Llave Primaria
+                        </label>
+                    </div>
+
+                    <!-- Show in List -->
+                    <div class="flex items-center">
+                        <Checkbox
+                            v-model="mapping.show_in_list"
+                            @update:model-value="updateMapping(index, 'show_in_list', $event)"
+                            name="show_in_list"
+                        />
+                        <label class="ml-2 text-sm font-medium text-gray-700">
+                            Mostrar en Lista
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Mapping Preview -->
                 <div v-if="mapping.source_column && mapping.target_column" class="mt-3 p-2 bg-blue-50 rounded border-l-4 border-blue-400">
                     <p class="text-sm text-blue-800">
                         <span class="font-medium">{{ mapping.source_column }}</span>
                         <span class="mx-2">→</span>
                         <span class="font-medium">{{ mapping.target_column }}</span>
+                        <span v-if="mapping.display_name" class="ml-2 text-gray-600">
+                            ({{ mapping.display_name }})
+                        </span>
                     </p>
+                    <div v-if="mapping.primary_key || !mapping.show_in_list" class="mt-1 text-xs text-blue-600">
+                        <span v-if="mapping.primary_key" class="inline-block bg-blue-200 text-blue-800 px-2 py-1 rounded mr-2">
+                            Llave Primaria
+                        </span>
+                        <span v-if="!mapping.show_in_list" class="inline-block bg-gray-200 text-gray-800 px-2 py-1 rounded">
+                            Oculto en Lista
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -161,6 +218,8 @@ const getAvailableTargetColumns = () => {
                 <p>Total de mapeos: {{ columnMappings.length }}</p>
                 <p>Mapeos completos: {{ columnMappings.filter(m => m.source_column && m.target_column).length }}</p>
                 <p>Mapeos pendientes: {{ columnMappings.filter(m => !m.source_column || !m.target_column).length }}</p>
+                <p>Llaves primarias: {{ columnMappings.filter(m => m.primary_key).length }}</p>
+                <p>Columnas visibles en lista: {{ columnMappings.filter(m => m.show_in_list).length }}</p>
             </div>
         </div>
     </div>

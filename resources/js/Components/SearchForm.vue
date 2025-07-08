@@ -83,8 +83,5 @@ const clearSearch = () => {
                 {{ clearButtonText }}
             </button>
         </form>
-        <div v-if="searchTerm" class="mt-2 text-sm text-gray-600">
-            Buscando: "{{ searchTerm }}"
-        </div>
     </div>
 </template> 

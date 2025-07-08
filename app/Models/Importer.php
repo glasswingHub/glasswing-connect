@@ -28,4 +28,12 @@ class Importer extends Model
     {
         return $this->hasMany(ImporterColumn::class);
     }
+
+    /**
+     * Get the users associated with this importer.
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
 }

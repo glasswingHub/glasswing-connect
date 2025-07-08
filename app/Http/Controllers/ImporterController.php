@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Importer;
 use App\Models\ImporterColumn;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -38,9 +39,13 @@ class ImporterController extends Controller
      */
     public function create()
     {
+        $users = User::where('active', true)->orderBy('name')->select('id', 'name', 'email')->get();
+        
         return Inertia::render('Importers/Create', [
             'targetTableOptions' => $this->getTargetTableOptions(),
-            'sourceTableOptions' => $this->getSourceTableOptions()
+            'sourceTableOptions' => $this->getSourceTableOptions(),
+            'users' => $users,
+            'selectedUserIds' => [],
         ]);
     }
 
@@ -54,9 +59,14 @@ class ImporterController extends Controller
             'source_table' => 'required|string|max:255',
             'target_table' => 'required|in:volunteerings,beneficiaries',
             'active' => 'boolean',
+            'user_ids' => 'array',
+            'user_ids.*' => 'exists:users,id',
             'column_mappings' => 'array',
             'column_mappings.*.source_column' => 'required_with:column_mappings.*.target_column|string',
             'column_mappings.*.target_column' => 'required_with:column_mappings.*.source_column|string',
+            'column_mappings.*.display_name' => 'nullable|string|max:255',
+            'column_mappings.*.primary_key' => 'boolean',
+            'column_mappings.*.show_in_list' => 'boolean',
         ]);
 
         $importer = Importer::create([
@@ -66,6 +76,11 @@ class ImporterController extends Controller
             'active' => $request->active ?? true,
         ]);
 
+        // Asociar usuarios seleccionados
+        if ($request->has('user_ids') && is_array($request->user_ids)) {
+            $importer->users()->sync($request->user_ids);
+        }
+
         // Store column mappings if provided
         if ($request->has('column_mappings') && is_array($request->column_mappings)) {
             foreach ($request->column_mappings as $mapping) {
@@ -74,6 +89,9 @@ class ImporterController extends Controller
                         'importer_id' => $importer->id,
                         'source_column' => $mapping['source_column'],
                         'target_column' => $mapping['target_column'],
+                        'display_name' => $mapping['display_name'] ?? null,
+                        'primary_key' => $mapping['primary_key'] ?? false,
+                        'show_in_list' => $mapping['show_in_list'] ?? true,
                     ]);
                 }
             }
@@ -89,11 +107,13 @@ class ImporterController extends Controller
     public function show(string $id)
     {
         $importer = Importer::withTrashed()->findOrFail($id);
-        $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column']);
+        $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list']);
+        $associatedUsers = $importer->users()->select('users.id', 'users.name', 'users.email')->get();
         
         return Inertia::render('Importers/Show', [
             'importer' => $importer,
             'columnMappings' => $columnMappings,
+            'associatedUsers' => $associatedUsers,
             'auth' => [
                 'user' => auth()->user()
             ]
@@ -106,13 +126,17 @@ class ImporterController extends Controller
     public function edit(string $id)
     {
         $importer = Importer::withTrashed()->findOrFail($id);
-        $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column']);
+        $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list']);
+        $users = User::where('active', true)->orderBy('name')->select('id', 'name', 'email')->get();
+        $selectedUserIds = $importer->users()->pluck('users.id');
         
         return Inertia::render('Importers/Edit', [
             'importer' => $importer,
             'columnMappings' => $columnMappings,
             'targetTableOptions' => $this->getTargetTableOptions(),
             'sourceTableOptions' => $this->getSourceTableOptions(),
+            'users' => $users,
+            'selectedUserIds' => $selectedUserIds,
             'auth' => [
                 'user' => auth()->user()
             ]
@@ -131,9 +155,14 @@ class ImporterController extends Controller
             'source_table' => 'required|string|max:255',
             'target_table' => 'required|in:volunteerings,beneficiaries',
             'active' => 'boolean',
+            'user_ids' => 'array',
+            'user_ids.*' => 'exists:users,id',
             'column_mappings' => 'array',
             'column_mappings.*.source_column' => 'required_with:column_mappings.*.target_column|string',
             'column_mappings.*.target_column' => 'required_with:column_mappings.*.source_column|string',
+            'column_mappings.*.display_name' => 'nullable|string|max:255',
+            'column_mappings.*.primary_key' => 'boolean',
+            'column_mappings.*.show_in_list' => 'boolean',
         ]);
 
         $importer->update([
@@ -142,6 +171,11 @@ class ImporterController extends Controller
             'target_table' => $request->target_table,
             'active' => $request->active ?? true,
         ]);
+
+        // Asociar usuarios seleccionados
+        if ($request->has('user_ids') && is_array($request->user_ids)) {
+            $importer->users()->sync($request->user_ids);
+        }
 
         // Update column mappings
         if ($request->has('column_mappings')) {
@@ -156,6 +190,9 @@ class ImporterController extends Controller
                             'importer_id' => $importer->id,
                             'source_column' => $mapping['source_column'],
                             'target_column' => $mapping['target_column'],
+                            'display_name' => $mapping['display_name'] ?? null,
+                            'primary_key' => $mapping['primary_key'] ?? false,
+                            'show_in_list' => $mapping['show_in_list'] ?? true,
                         ]);
                     }
                 }

@@ -6,9 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Importer;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use App\Services\ProcessBeneficiary;
+use App\Services\ProcessVolunteer;
 
 class ImportRecordController extends Controller
 {
+
     /**
      * Muestra los registros de la tabla source_table del importer.
      */
@@ -21,8 +24,19 @@ class ImportRecordController extends Controller
         $perPage = 15;
         $page = request('page', 1);
 
-        // Obtener registros usando la conexión gwforms
+        // Obtener las columnas que deben mostrarse en la lista
+        $visibleColumns = $importer->columnMappings()
+            ->where('show_in_list', true)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'key' => $item->source_column,
+                    'label' => $item->display_name,
+                ];
+            });
+
         $query = DB::connection('gwforms')->table($table);
+        
         $total = $query->count();
         $records = $query->forPage($page, $perPage)->get();
 
@@ -38,6 +52,7 @@ class ImportRecordController extends Controller
         return Inertia::render('ImportRecords/Index', [
             'importer' => $importer,
             'records' => $pagination,
+            'columns' => $visibleColumns,
         ]);
     }
 
@@ -49,11 +64,23 @@ class ImportRecordController extends Controller
         $importer = Importer::findOrFail($importerId);
         $table = $importer->source_table;
 
-        // Obtener el registro específico usando la conexión gwforms
+        // Obtener las columnas que deben mostrarse en la lista
+        $visibleColumns = $importer->columnMappings()
+            ->where('show_in_list', true)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'key' => $item->source_column,
+                    'label' => $item->display_name,
+                ];
+            });
+
+
         $record = DB::connection('gwforms')
             ->table($table)
             ->where('id', $recordId)
             ->first();
+
 
         if (!$record) {
             abort(404, 'Registro no encontrado');
@@ -62,8 +89,28 @@ class ImportRecordController extends Controller
         return Inertia::render('ImportRecords/Show', [
             'importer' => $importer,
             'record' => $record,
+            'columns' => $visibleColumns,
         ]);
     }
 
-    
+    public function process_import($importerId, $recordId)
+    {
+        $importer = Importer::findOrFail($importerId);
+
+        switch($importer->target_table){
+            case 'volunteerings':
+                $processRecord = new ProcessVolunteer();
+                break;
+            default: # case 'beneficiaries':
+                $processRecord = new ProcessBeneficiary();
+                break;
+        }    
+        
+        $result = $processRecord->execute($importer, $recordId);
+        
+        return response()->json([
+            'message' => $result['message'],
+            'success' => $result['success']
+        ]);
+    }
 }
