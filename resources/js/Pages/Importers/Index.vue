@@ -67,7 +67,7 @@ const pageActions = [
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="importer in importers.data" :key="importer.id" :class="{ 'bg-red-50': importer.deleted_at }">
+                    <tr v-for="importer in importers.data" :key="importer.id" :class="{ 'bg-red-50': importer.deleted_at || !importer.configured }">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span
                                 :class="[
@@ -84,6 +84,7 @@ const pageActions = [
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ importer.source_table }}
+                            <small v-if="!importer.configured" class="block text-xs text-gray-500">No configurado</small>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ importer.target_table === 'volunteerings' ? 'Volunteerings' : 'Beneficiaries' }}

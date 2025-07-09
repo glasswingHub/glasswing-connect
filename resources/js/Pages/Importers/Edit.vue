@@ -210,8 +210,13 @@ const pageActions = [
 
                 <!-- Usuarios -->
                 <div class="md:col-span-2">
-                    <InputLabel value="Usuarios asociados" />
-                    <div class="mt-2 space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-md p-3">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        Usuarios asociados
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                        Selecciona los usuarios que tendrán acceso a este importador.
+                    </p>
+                    <div class="mt-2 space-y-2 max-h-48 overflow-y-auto">
                         <div v-for="user in users" :key="user.id" class="flex items-center">
                             <Checkbox
                                 :id="'user_' + user.id"

@@ -86,13 +86,21 @@ const getAvailableTargetColumns = () => {
 <template>
     <div class="space-y-6">
         <!-- Header -->
-        <div class="flex items-center justify-between">
+        <div class="">
             <h3 class="text-lg font-medium text-gray-900">
                 Mapeo de Columnas
             </h3>
-            <SecondaryButton @click="addMapping" type="button">
-                Agregar Mapeo
-            </SecondaryButton>
+            <div class="mt-2 p-2 bg-yellow-50 rounded border-l-4 border-yellow-400">
+                <p class="text-sm text-gray-500">
+                    Recuerda que para que un importador este configurado correctamente:
+                </p>
+                <ul class="list-disc list-inside text-sm text-gray-500 mt-2">
+                    <li>Debes indicar una columna como Llave primaria y una como Llave país.</li>
+                    <li>Debes indicar una columna como Llave única si es necesario.</li>
+                    <li>Cuando la tabla de destino es <span class="font-bold">volunteerings</span>, debes mapear las columnas: <span class="font-bold">code, name, surname, fechaNac, year</span>.</li>
+                    <li>Cuando la tabla de destino es <span class="font-bold">beneficiaries</span>, debes mapear las columnas: <span class="font-bold">name, surname, fechaNac</span>.</li>
+                </ul>
+            </div>
         </div>
 
         <!-- Mappings List -->
@@ -241,6 +249,12 @@ const getAvailableTargetColumns = () => {
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="flex items-center justify-end">
+            <SecondaryButton @click="addMapping" type="button">
+                Agregar Mapeo
+            </SecondaryButton>
         </div>
 
         <!-- Summary -->

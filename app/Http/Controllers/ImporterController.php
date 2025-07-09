@@ -117,7 +117,9 @@ class ImporterController extends Controller
                 break;
         }
 
-        $importer->active = $importer->configured;
+        if($importer->active){
+            $importer->active = $importer->configured;
+        }
         $importer->save();
 
         return redirect()->route('importers.index')
@@ -249,7 +251,9 @@ class ImporterController extends Controller
                 break;
         }
 
-        $importer->active = $importer->configured;
+        if($importer->active){
+            $importer->active = $importer->configured;
+        }
         $importer->save();
 
         return redirect()->route('importers.index')
