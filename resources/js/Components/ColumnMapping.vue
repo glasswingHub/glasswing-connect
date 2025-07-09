@@ -44,7 +44,9 @@ const addMapping = () => {
         target_column: '',
         display_name: '',
         primary_key: false,
-        show_in_list: true
+        country_key: false,
+        show_in_list: true,
+        uniqueness_key: false
     });
 };
 
@@ -163,7 +165,7 @@ const getAvailableTargetColumns = () => {
                 </div>
 
                 <!-- Options Row -->
-                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Primary Key -->
                     <div class="flex items-center">
                         <Checkbox
@@ -173,6 +175,30 @@ const getAvailableTargetColumns = () => {
                         />
                         <label class="ml-2 text-sm font-medium text-gray-700">
                             Es Llave Primaria
+                        </label>
+                    </div>
+
+                    <!-- Country Key -->
+                    <div class="flex items-center">
+                        <Checkbox
+                            v-model="mapping.country_key"
+                            @update:model-value="updateMapping(index, 'country_key', $event)"
+                            name="country_key"
+                        />
+                        <label class="ml-2 text-sm font-medium text-gray-700">
+                            Es Llave País
+                        </label>
+                    </div>
+
+                    <!-- Uniqueness Key -->
+                    <div class="flex items-center">
+                        <Checkbox
+                            v-model="mapping.uniqueness_key"
+                            @update:model-value="updateMapping(index, 'uniqueness_key', $event)"
+                            name="uniqueness_key"
+                        />
+                        <label class="ml-2 text-sm font-medium text-gray-700">
+                            Es Llave Única
                         </label>
                     </div>
 
@@ -199,9 +225,15 @@ const getAvailableTargetColumns = () => {
                             ({{ mapping.display_name }})
                         </span>
                     </p>
-                    <div v-if="mapping.primary_key || !mapping.show_in_list" class="mt-1 text-xs text-blue-600">
+                    <div v-if="mapping.primary_key || mapping.country_key || mapping.uniqueness_key || !mapping.show_in_list" class="mt-1 text-xs text-blue-600">
                         <span v-if="mapping.primary_key" class="inline-block bg-blue-200 text-blue-800 px-2 py-1 rounded mr-2">
                             Llave Primaria
+                        </span>
+                        <span v-if="mapping.country_key" class="inline-block bg-purple-200 text-purple-800 px-2 py-1 rounded mr-2">
+                            Llave País
+                        </span>
+                        <span v-if="mapping.uniqueness_key" class="inline-block bg-green-200 text-green-800 px-2 py-1 rounded mr-2">
+                            Llave Única
                         </span>
                         <span v-if="!mapping.show_in_list" class="inline-block bg-gray-200 text-gray-800 px-2 py-1 rounded">
                             Oculto en Lista
@@ -219,6 +251,8 @@ const getAvailableTargetColumns = () => {
                 <p>Mapeos completos: {{ columnMappings.filter(m => m.source_column && m.target_column).length }}</p>
                 <p>Mapeos pendientes: {{ columnMappings.filter(m => !m.source_column || !m.target_column).length }}</p>
                 <p>Llaves primarias: {{ columnMappings.filter(m => m.primary_key).length }}</p>
+                <p>Llaves país: {{ columnMappings.filter(m => m.country_key).length }}</p>
+                <p>Llaves únicas: {{ columnMappings.filter(m => m.uniqueness_key).length }}</p>
                 <p>Columnas visibles en lista: {{ columnMappings.filter(m => m.show_in_list).length }}</p>
             </div>
         </div>

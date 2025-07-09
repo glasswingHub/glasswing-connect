@@ -16,7 +16,7 @@ class ImporterController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Importer::withTrashed()->select('id', 'name', 'source_table', 'target_table', 'active', 'deleted_at')
+        $query = Importer::withTrashed()->select('id', 'name', 'source_table', 'target_table', 'active', 'deleted_at', 'country_code')
             ->orderBy('name');
         
         if($request->has('search')){
@@ -44,6 +44,7 @@ class ImporterController extends Controller
         return Inertia::render('Importers/Create', [
             'targetTableOptions' => $this->getTargetTableOptions(),
             'sourceTableOptions' => $this->getSourceTableOptions(),
+            'countries' => $this->getCountries(),
             'users' => $users,
             'selectedUserIds' => [],
         ]);
@@ -59,6 +60,7 @@ class ImporterController extends Controller
             'source_table' => 'required|string|max:255',
             'target_table' => 'required|in:volunteerings,beneficiaries',
             'active' => 'boolean',
+            'country_code' => 'required|string|max:255',
             'user_ids' => 'array',
             'user_ids.*' => 'exists:users,id',
             'column_mappings' => 'array',
@@ -67,6 +69,8 @@ class ImporterController extends Controller
             'column_mappings.*.display_name' => 'nullable|string|max:255',
             'column_mappings.*.primary_key' => 'boolean',
             'column_mappings.*.show_in_list' => 'boolean',
+            'column_mappings.*.country_key' => 'boolean',
+            'column_mappings.*.uniqueness_key' => 'boolean',
         ]);
 
         $importer = Importer::create([
@@ -74,6 +78,7 @@ class ImporterController extends Controller
             'source_table' => $request->source_table,
             'target_table' => $request->target_table,
             'active' => $request->active ?? true,
+            'country_code' => $request->country_code,
         ]);
 
         // Asociar usuarios seleccionados
@@ -92,10 +97,28 @@ class ImporterController extends Controller
                         'display_name' => $mapping['display_name'] ?? null,
                         'primary_key' => $mapping['primary_key'] ?? false,
                         'show_in_list' => $mapping['show_in_list'] ?? true,
+                        'country_key' => $mapping['country_key'] ?? false,
+                        'uniqueness_key' => $mapping['uniqueness_key'] ?? false,
                     ]);
                 }
             }
         }
+
+        $countryKeyCount = $importer->columnMappings()->where('country_key', true)->count();
+        $primaryKeyCount = $importer->columnMappings()->where('primary_key', true)->count();
+        $importer->configured = $countryKeyCount == 1 && $primaryKeyCount == 1;
+
+        switch($importer->target_table){
+            case 'volunteerings':
+                $importer->configured = $importer->configured && $importer->columnMappings()->whereIn('target_column', ['code', 'name', 'surname', 'fechaNac', 'year'])->count() == 4;
+                break;
+            case 'beneficiaries':
+                $importer->configured = $importer->configured && $importer->columnMappings()->whereIn('target_column', ['name', 'surname', 'fechaNac'])->count() == 3;
+                break;
+        }
+
+        $importer->active = $importer->configured;
+        $importer->save();
 
         return redirect()->route('importers.index')
             ->with('success', 'Importador creado exitosamente');
@@ -107,13 +130,20 @@ class ImporterController extends Controller
     public function show(string $id)
     {
         $importer = Importer::withTrashed()->findOrFail($id);
-        $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list']);
+        $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key']);
         $associatedUsers = $importer->users()->select('users.id', 'users.name', 'users.email')->get();
+        
+        // Get country name if country_code exists
+        $countryName = null;
+        if ($importer->country_code) {
+            $countryName = $this->getCountryNameByCode($importer->country_code);
+        }
         
         return Inertia::render('Importers/Show', [
             'importer' => $importer,
             'columnMappings' => $columnMappings,
             'associatedUsers' => $associatedUsers,
+            'countryName' => $countryName,
             'auth' => [
                 'user' => auth()->user()
             ]
@@ -126,7 +156,7 @@ class ImporterController extends Controller
     public function edit(string $id)
     {
         $importer = Importer::withTrashed()->findOrFail($id);
-        $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list']);
+        $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key']);
         $users = User::where('active', true)->orderBy('name')->select('id', 'name', 'email')->get();
         $selectedUserIds = $importer->users()->pluck('users.id');
         
@@ -135,6 +165,7 @@ class ImporterController extends Controller
             'columnMappings' => $columnMappings,
             'targetTableOptions' => $this->getTargetTableOptions(),
             'sourceTableOptions' => $this->getSourceTableOptions(),
+            'countries' => $this->getCountries(),
             'users' => $users,
             'selectedUserIds' => $selectedUserIds,
             'auth' => [
@@ -155,6 +186,7 @@ class ImporterController extends Controller
             'source_table' => 'required|string|max:255',
             'target_table' => 'required|in:volunteerings,beneficiaries',
             'active' => 'boolean',
+            'country_code' => 'nullable|string|max:255',
             'user_ids' => 'array',
             'user_ids.*' => 'exists:users,id',
             'column_mappings' => 'array',
@@ -163,6 +195,8 @@ class ImporterController extends Controller
             'column_mappings.*.display_name' => 'nullable|string|max:255',
             'column_mappings.*.primary_key' => 'boolean',
             'column_mappings.*.show_in_list' => 'boolean',
+            'column_mappings.*.country_key' => 'boolean',
+            'column_mappings.*.uniqueness_key' => 'boolean',
         ]);
 
         $importer->update([
@@ -170,6 +204,7 @@ class ImporterController extends Controller
             'source_table' => $request->source_table,
             'target_table' => $request->target_table,
             'active' => $request->active ?? true,
+            'country_code' => $request->country_code,
         ]);
 
         // Asociar usuarios seleccionados
@@ -193,11 +228,29 @@ class ImporterController extends Controller
                             'display_name' => $mapping['display_name'] ?? null,
                             'primary_key' => $mapping['primary_key'] ?? false,
                             'show_in_list' => $mapping['show_in_list'] ?? true,
+                            'country_key' => $mapping['country_key'] ?? false,
+                            'uniqueness_key' => $mapping['uniqueness_key'] ?? false,
                         ]);
                     }
                 }
             }
         }
+
+        $countryKeyCount = $importer->columnMappings()->where('country_key', true)->count();
+        $primaryKeyCount = $importer->columnMappings()->where('primary_key', true)->count();
+        $importer->configured = $countryKeyCount == 1 && $primaryKeyCount == 1;
+
+        switch($importer->target_table){
+            case 'volunteerings':
+                $importer->configured = $importer->configured && $importer->columnMappings()->whereIn('target_column', ['code', 'name', 'surname', 'fechaNac', 'year'])->count() == 4;
+                break;
+            case 'beneficiaries':
+                $importer->configured = $importer->configured && $importer->columnMappings()->whereIn('target_column', ['name', 'surname', 'fechaNac'])->count() == 3;
+                break;
+        }
+
+        $importer->active = $importer->configured;
+        $importer->save();
 
         return redirect()->route('importers.index')
             ->with('success', 'Importador actualizado exitosamente');
@@ -321,8 +374,38 @@ class ImporterController extends Controller
     public function getColumnMappings(string $id)
     {
         $importer = Importer::findOrFail($id);
-        $mappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column']);
+        $mappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key']);
         
         return response()->json($mappings);
+    }
+    
+    public function getCountries()
+    {
+        $countries = collect(DB::connection('gwdata')
+            ->select("SELECT codeCountry, name FROM countries ORDER BY name"))
+            ->map(function ($country) {
+                return [
+                    'value' => $country->codeCountry,
+                    'label' => $country->name
+                ];
+            })
+            ->toArray();
+
+        return $countries;
+    }
+
+    /**
+     * Get country name by country code.
+     */
+    private function getCountryNameByCode(string $countryCode): ?string
+    {
+        try {
+            $countries = DB::connection('gwdata')
+                ->select("SELECT name FROM countries WHERE codeCountry = ?", [$countryCode]);
+
+            return !empty($countries) ? $countries[0]->name : null;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }

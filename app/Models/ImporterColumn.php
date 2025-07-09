@@ -16,6 +16,8 @@ class ImporterColumn extends Model
         'display_name',
         'primary_key',
         'show_in_list',
+        'country_key',
+        'uniqueness_key',
     ];
 
     /**

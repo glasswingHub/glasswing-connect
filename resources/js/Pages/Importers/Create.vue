@@ -17,6 +17,7 @@ const props = defineProps({
     sourceTableOptions: Array,
     users: Array,
     selectedUserIds: Array,
+    countries: Array,
 });
 
 const form = useForm({
@@ -24,6 +25,7 @@ const form = useForm({
     source_table: '',
     target_table: '',
     active: true,
+    country_code: '',
     column_mappings: [],
     user_ids: props.selectedUserIds || [],
 });
@@ -165,6 +167,19 @@ const pageActions = [
                         :options="targetTableOptions"
                     />
                     <InputError class="mt-2" :message="form.errors.target_table" />
+                </div>
+
+                <!-- Código de País -->
+                <div>
+                    <InputLabel for="country_code" value="Código de País" />
+                    <InputSelect
+                        id="country_code"
+                        class="mt-1 block w-full"
+                        v-model="form.country_code"
+                        required
+                        :options="countries"
+                    />
+                    <InputError class="mt-2" :message="form.errors.country_code" />
                 </div>
 
                 <!-- Activo -->

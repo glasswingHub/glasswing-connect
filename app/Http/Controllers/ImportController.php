@@ -10,7 +10,8 @@ class ImportController extends Controller
 {
     public function index()
     {
-        $importers = Importer::where('active', true)
+        $importers = auth()->user()->importers()
+            ->where('active', true)
             ->orderBy('name')
             ->get();
 

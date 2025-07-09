@@ -17,7 +17,7 @@ class ImportRecordController extends Controller
      */
     public function records($importerId)
     {
-        $importer = Importer::findOrFail($importerId);
+        $importer = Importer::where('active', true)->findOrFail($importerId);
         $table = $importer->source_table;
 
         // Paginación (puedes ajustar el tamaño de página)
@@ -36,6 +36,16 @@ class ImportRecordController extends Controller
             });
 
         $query = DB::connection('gwforms')->table($table);
+        
+        // Obtener la columna marcada como country_key
+        $countryKeyColumn = $importer->columnMappings()
+            ->where('country_key', true)
+            ->first();
+        
+        // Aplicar filtro por país si existe country_code en el importer y hay una columna country_key
+        if ($importer->country_code && $countryKeyColumn) {
+            $query->where($countryKeyColumn->source_column, $importer->country_code);
+        }
         
         $total = $query->count();
         $records = $query->forPage($page, $perPage)->get();
@@ -61,7 +71,7 @@ class ImportRecordController extends Controller
      */
     public function show($importerId, $recordId)
     {
-        $importer = Importer::findOrFail($importerId);
+        $importer = Importer::where('active', true)->findOrFail($importerId);
         $table = $importer->source_table;
 
         // Obtener las columnas que deben mostrarse en la lista
@@ -76,26 +86,38 @@ class ImportRecordController extends Controller
             });
 
 
-        $record = DB::connection('gwforms')
-            ->table($table)
-            ->where('id', $recordId)
+        $query = DB::connection('gwforms')->table($table);
+        
+        // Obtener la columna marcada como country_key
+        $countryKeyColumn = $importer->columnMappings()
+            ->where('country_key', true)
             ->first();
 
+        $record = null;
+        
+        // Aplicar filtro por país si existe country_code en el importer y hay una columna country_key
+        if ($importer->country_code && $countryKeyColumn) {
+            $query->where($countryKeyColumn->source_column, $importer->country_code);
+            $record = $query->where('id', $recordId)->first();
+        }
 
         if (!$record) {
             abort(404, 'Registro no encontrado');
         }
 
+        $beneficiaryTypes = $this->getBeneficiaryTypes($importer->target_table);
+
         return Inertia::render('ImportRecords/Show', [
             'importer' => $importer,
             'record' => $record,
             'columns' => $visibleColumns,
+            'beneficiaryTypes' => $beneficiaryTypes,
         ]);
     }
 
-    public function process_import($importerId, $recordId)
+    public function process_import(Request $request, $importerId, $recordId)
     {
-        $importer = Importer::findOrFail($importerId);
+        $importer = Importer::where('active', true)->findOrFail($importerId);
 
         switch($importer->target_table){
             case 'volunteerings':
@@ -106,11 +128,31 @@ class ImportRecordController extends Controller
                 break;
         }    
         
-        $result = $processRecord->execute($importer, $recordId);
+        $result = $processRecord->execute($importer, $recordId, $request->beneficiary_type);
         
         return response()->json([
             'message' => $result['message'],
             'success' => $result['success']
         ]);
+    }
+
+    private function getBeneficiaryTypes($targetTable)
+    {
+        switch($targetTable){
+            case 'volunteerings':
+                return collect(DB::connection('gwdata')->select("SELECT id, name FROM type_beneficiarios WHERE typePerson = ?", [2]))->map(function ($item) {
+                    return [
+                        'value' => $item->id,
+                        'label' => $item->name
+                    ];
+                });
+            default: # case 'beneficiaries':
+                return collect(DB::connection('gwdata')->select("SELECT id, name FROM type_beneficiarios WHERE typePerson = ?", [1]))->map(function ($item) {
+                    return [
+                        'value' => $item->id,
+                        'label' => $item->name
+                    ];
+                });
+        }
     }
 }

@@ -10,6 +10,7 @@ const props = defineProps({
     importer: Object,
     record: Object,
     columns: Object,
+    beneficiaryTypes: Array,
 });
 
 const recordFields = computed(() => {
@@ -32,13 +33,22 @@ const pageActions = [
 
 const message = ref('');
 const loading = ref(false);
+const selectedBeneficiaryType = ref('');
 
 async function handleImport() {
+    // Validación para evitar submit si no se ha seleccionado un tipo de beneficiario
+    if (!selectedBeneficiaryType.value) {
+        message.value = 'Debe seleccionar un tipo de beneficiario antes de importar.';
+        return;
+    }
+    
     loading.value = true;
     try {
         const response = await axios.post(
             `/imports/${props.importer.id}/records/${props.record.id}/process_import`,
-            {}
+            {
+                beneficiary_type: selectedBeneficiaryType.value
+            }
         );
         message.value = response.data.message;
     } catch (error) {
@@ -83,34 +93,34 @@ async function handleImport() {
                 </div>
             </template>
         </dl>
-        
-        <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-            <div 
-                v-for="field in recordFields" 
-                :key="field.field"
-                class="bg-white p-4 rounded-lg border border-gray-200"
-            >
-                <div class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">
-                    {{ field.field }}
-                </div>
-                <div class="text-gray-900 break-words">
-                    <span v-if="field.value === null" class="text-gray-400 italic">
-                        Nulo
-                    </span>
-                    <span v-else-if="field.value === ''" class="text-gray-400 italic">
-                        Vacío
-                    </span>
-                    <span v-else>
-                        {{ field.value }}
-                    </span>
-                </div>
-            </div>
-        </div>
 
         <!-- Actions -->
         <div class="mt-6">
             
             <form @submit.prevent="handleImport">
+                
+                <!-- Beneficiary Type Selection -->
+                <div v-if="beneficiaryTypes && beneficiaryTypes.length > 0" class="mb-4">
+                    <label for="beneficiary_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        Tipo de Beneficiario
+                    </label>
+                    <select 
+                        id="beneficiary_type"
+                        v-model="selectedBeneficiaryType"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    >
+                        <option value="">Seleccione un tipo de beneficiario</option>
+                        <option 
+                            v-for="type in beneficiaryTypes" 
+                            :key="type.value" 
+                            :value="type.value"
+                        >
+                            {{ type.label }}
+                        </option>
+                    </select>
+                </div>
+
                 <!-- Puedes agregar campos aquí si el import requiere datos adicionales -->
                 <button 
                     type="submit" 

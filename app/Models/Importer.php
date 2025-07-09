@@ -14,7 +14,8 @@ class Importer extends Model
         'name',
         'source_table',
         'target_table',
-        'active'
+        'active',
+        'country_code'
     ];
 
     protected $casts = [

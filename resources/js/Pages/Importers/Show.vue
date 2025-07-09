@@ -8,6 +8,7 @@ const props = defineProps({
     importer: Object,
     columnMappings: Array,
     associatedUsers: Array,
+    countryName: String,
     auth: Object,
 });
 
@@ -55,6 +56,18 @@ const pageActions = [
                 <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Tabla Destino</h4>
                 <p class="mt-1 text-sm text-gray-900">
                     {{ importer.target_table === 'volunteerings' ? 'Volunteerings' : 'Beneficiaries' }}
+                </p>
+            </div>
+
+            <!-- Código de País -->
+            <div>
+                <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider">País</h4>
+                <p class="mt-1 text-sm text-gray-900">
+                    <span v-if="importer.country_code">
+                        {{ countryName }}
+                        <span v-if="countryName" class="text-gray-500">({{ importer.country_code }})</span>
+                    </span>
+                    <span v-else>No especificado</span>
                 </p>
             </div>
 
@@ -147,6 +160,8 @@ const pageActions = [
                         </div>
                         <div class="flex space-x-2 mt-2 md:mt-0">
                             <span v-if="mapping.primary_key" class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Llave primaria</span>
+                            <span v-if="mapping.country_key" class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">Llave país</span>
+                            <span v-if="mapping.uniqueness_key" class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Llave única</span>
                             <span v-if="!mapping.show_in_list" class="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">Oculto en lista</span>
                         </div>
                     </div>
