@@ -382,7 +382,7 @@ class ImporterController extends Controller
     public function getColumnMappings(string $id)
     {
         $importer = Importer::findOrFail($id);
-        $mappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key']);
+        $mappings = $importer->columnMappings()->orderBy('target_column', 'asc')->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key']);
         
         return response()->json($mappings);
     }
