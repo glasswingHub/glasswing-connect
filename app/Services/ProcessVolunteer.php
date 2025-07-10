@@ -89,7 +89,6 @@ class ProcessVolunteer
             $volunteer->imported_at = Carbon::now();
             $volunteer->imported_by = 999999;
             $volunteer->code = 0;
-            $volunteer->hourSocial = 2;
             $volunteer->origin = 1;
             
             if(!$volunteer->save()){
