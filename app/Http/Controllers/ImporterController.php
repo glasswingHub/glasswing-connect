@@ -112,7 +112,7 @@ class ImporterController extends Controller
 
         switch($importer->target_table){
             case 'volunteerings':
-                $importer->configured = $importer->configured && $importer->columnMappings()->whereIn('target_column', ['code', 'name', 'surname', 'fechaNac', 'year'])->count() == 5;
+                $importer->configured = $importer->configured && $importer->columnMappings()->whereIn('target_column', ['name', 'surname', 'fechaNac'])->count() == 3;
                 break;
             case 'beneficiaries':
                 $importer->configured = $importer->configured && $importer->columnMappings()->whereIn('target_column', ['name', 'surname', 'fechaNac'])->count() == 3;
@@ -248,7 +248,7 @@ class ImporterController extends Controller
 
         switch($importer->target_table){
             case 'volunteerings':
-                $importer->configured = $importer->configured && $importer->columnMappings()->whereIn('target_column', ['code', 'name', 'surname', 'fechaNac', 'year'])->count() == 5;
+                $importer->configured = $importer->configured && $importer->columnMappings()->whereIn('target_column', ['name', 'surname', 'fechaNac'])->count() == 3;
                 break;
             case 'beneficiaries':
                 $importer->configured = $importer->configured && $importer->columnMappings()->whereIn('target_column', ['name', 'surname', 'fechaNac'])->count() == 3;

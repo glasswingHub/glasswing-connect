@@ -85,7 +85,10 @@ class ProcessVolunteer
 
             $volunteer->typeBeneficiary = $beneficiaryType;
             $volunteer->fkCodeCountry = $importer->country_code;
-            // $volunteer->imported_at = Carbon::now();
+            $volunteer->year = Carbon::now()->year;
+            $volunteer->imported_at = Carbon::now();
+            $volunteer->imported_by = 999999;
+            $volunteer->code = 0;
             $volunteer->hourSocial = 2;
             $volunteer->origin = 1;
             

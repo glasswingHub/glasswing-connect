@@ -97,7 +97,7 @@ const getAvailableTargetColumns = () => {
                 <ul class="list-disc list-inside text-sm text-gray-500 mt-2">
                     <li>Debes indicar una columna como Llave primaria y una como Llave país.</li>
                     <li>Debes indicar una columna como Llave única si es necesario.</li>
-                    <li>Cuando la tabla de destino es <span class="font-bold">volunteerings</span>, debes mapear las columnas: <span class="font-bold">code, name, surname, fechaNac, year</span>.</li>
+                    <li>Cuando la tabla de destino es <span class="font-bold">volunteerings</span>, debes mapear las columnas: <span class="font-bold">name, surname, fechaNac</span>.</li>
                     <li>Cuando la tabla de destino es <span class="font-bold">beneficiaries</span>, debes mapear las columnas: <span class="font-bold">name, surname, fechaNac</span>.</li>
                 </ul>
             </div>
