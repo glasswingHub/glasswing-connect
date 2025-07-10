@@ -16,7 +16,7 @@ class ImporterController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Importer::withTrashed()->select('id', 'name', 'source_table', 'target_table', 'active', 'deleted_at', 'country_code')
+        $query = Importer::withTrashed()->select('id', 'name', 'source_table', 'target_table', 'active', 'deleted_at', 'country_code', 'description', 'configured')
             ->orderBy('name');
         
         if($request->has('search')){
@@ -61,6 +61,7 @@ class ImporterController extends Controller
             'target_table' => 'required|in:volunteerings,beneficiaries',
             'active' => 'boolean',
             'country_code' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'user_ids' => 'array',
             'user_ids.*' => 'exists:users,id',
             'column_mappings' => 'array',
@@ -79,6 +80,7 @@ class ImporterController extends Controller
             'target_table' => $request->target_table,
             'active' => $request->active ?? true,
             'country_code' => $request->country_code,
+            'description' => $request->description,
         ]);
 
         // Asociar usuarios seleccionados
@@ -189,6 +191,7 @@ class ImporterController extends Controller
             'target_table' => 'required|in:volunteerings,beneficiaries',
             'active' => 'boolean',
             'country_code' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'user_ids' => 'array',
             'user_ids.*' => 'exists:users,id',
             'column_mappings' => 'array',
@@ -207,6 +210,7 @@ class ImporterController extends Controller
             'target_table' => $request->target_table,
             'active' => $request->active ?? true,
             'country_code' => $request->country_code,
+            'description' => $request->description,
         ]);
 
         // Asociar usuarios seleccionados

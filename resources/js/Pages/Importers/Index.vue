@@ -93,7 +93,12 @@ const pageActions = [
                             {{ importer.country_code }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ importer.name }}
+                            <div>
+                                <div>{{ importer.name }}</div>
+                                <div v-if="importer.description" class="text-xs text-gray-500 truncate max-w-xs" :title="importer.description">
+                                    {{ importer.description }}
+                                </div>
+                            </div>
                             <span v-if="importer.deleted_at" class="ml-2 text-xs text-red-600">(Eliminado)</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">

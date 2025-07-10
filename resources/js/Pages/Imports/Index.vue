@@ -38,7 +38,12 @@ defineProps({
                             Activo
                         </span>
                     </div>
-                    
+                    <div class="space-y-2 mb-4">
+                        <p v-if="importer.description" class="text-sm text-gray-600 mt-1">
+                            {{ importer.description }}
+                        </p>
+                    </div>
+
                     <div class="space-y-2 mb-4">
                         <div class="text-sm text-gray-600">
                             <span class="font-medium">Tabla Origen:</span> {{ importer.source_table }}

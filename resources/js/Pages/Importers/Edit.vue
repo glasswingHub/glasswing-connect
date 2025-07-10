@@ -28,6 +28,7 @@ const form = useForm({
     target_table: props.importer.target_table,
     active: props.importer.active,
     country_code: props.importer.country_code || '',
+    description: props.importer.description || '',
     column_mappings: props.columnMappings || [],
     user_ids: props.selectedUserIds || [],
 });
@@ -196,6 +197,19 @@ const pageActions = [
                         :options="countries"
                     />
                     <InputError class="mt-2" :message="form.errors.country_code" />
+                </div>
+
+                <!-- Descripción -->
+                <div class="md:col-span-2">
+                    <InputLabel for="description" value="Descripción" />
+                    <textarea
+                        id="description"
+                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                        v-model="form.description"
+                        rows="3"
+                        placeholder="Descripción opcional del importador..."
+                    ></textarea>
+                    <InputError class="mt-2" :message="form.errors.description" />
                 </div>
 
                 <!-- Activo -->
