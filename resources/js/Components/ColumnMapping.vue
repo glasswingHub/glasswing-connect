@@ -18,6 +18,10 @@ const props = defineProps({
     existingMappings: {
         type: Array,
         default: () => []
+    },
+    targetTable: {
+        type: String,
+        default: ''
     }
 });
 
@@ -39,6 +43,7 @@ watch(columnMappings, (newMappings) => {
 
 const addMapping = () => {
     columnMappings.value.push({
+        target_table: props.targetTable,
         id: Date.now(), // Temporary ID for new mappings
         source_column: '',
         target_column: '',
@@ -85,24 +90,6 @@ const getAvailableTargetColumns = () => {
 
 <template>
     <div class="space-y-6">
-        <!-- Header -->
-        <div class="">
-            <h3 class="text-lg font-medium text-gray-900">
-                Mapeo de Columnas
-            </h3>
-            <div class="mt-2 p-2 bg-yellow-50 rounded border-l-4 border-yellow-400">
-                <p class="text-sm text-gray-500">
-                    Recuerda que para que un importador este configurado correctamente:
-                </p>
-                <ul class="list-disc list-inside text-sm text-gray-500 mt-2">
-                    <li>Debes indicar una columna como Llave primaria y una como Llave país.</li>
-                    <li>Debes indicar una columna como Llave única si es necesario.</li>
-                    <li>Cuando la tabla de destino es <span class="font-bold">volunteerings</span>, debes mapear las columnas: <span class="font-bold">name, surname, fechaNac</span>.</li>
-                    <li>Cuando la tabla de destino es <span class="font-bold">beneficiaries</span>, debes mapear las columnas: <span class="font-bold">name, surname, fechaNac</span>.</li>
-                </ul>
-            </div>
-        </div>
-
         <!-- Mappings List -->
         <div v-if="columnMappings.length === 0" class="text-center py-8 text-gray-500">
             <p>No hay mapeos de columnas configurados.</p>
@@ -253,7 +240,7 @@ const getAvailableTargetColumns = () => {
 
         <div class="flex items-center justify-end">
             <SecondaryButton @click="addMapping" type="button">
-                Agregar Mapeo
+                Agregar Mapeo de tabla <span class="ml-1 font-bold">{{ targetTable }}</span>
             </SecondaryButton>
         </div>
 

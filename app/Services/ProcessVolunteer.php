@@ -7,134 +7,201 @@ use Illuminate\Support\Facades\Log;
 use Exception;
 use App\Models\Importer;
 use App\Models\Volunteer;
+use App\Models\VolunteerPersonalReference;
+use App\Models\VolunteerCommitment;
 use Carbon\Carbon;
 
 class ProcessVolunteer
 {
-    public function execute(Importer $importer, int $recordId, int $beneficiaryType): array
+    public $importer;
+    public $record;
+    public $volunteer;
+    public $volunteerPersonalReference;
+    public $volunteerCommitment;
+    public $response;
+
+    public function __construct(Importer $importer, int $recordId, int $beneficiaryType){
+        $this->importer = $importer;
+        $this->recordId = $recordId;
+        $this->record = null;
+        $this->beneficiaryType = $beneficiaryType;
+        $this->response = [
+            'success' => false,
+            'message' => ''
+        ];
+        $this->columns = array(
+            (new Volunteer())->getTable() => array(),
+            (new VolunteerPersonalReference())->getTable() => array(),
+            (new VolunteerCommitment())->getTable() => array(),
+        );
+
+        $this->volunteer = null;
+        $this->volunteerPersonalReference = null;
+        $this->volunteerCommitment = null;
+    }
+
+    
+    public function execute(): array
     {
         try {
-            // Verificar que el registro pertenece al país correcto antes de procesarlo
-            $table = $importer->source_table;
-            $query = DB::connection('gwforms')->table($table);
-            
-            // Obtener la columna marcada como country_key
-            $countryKeyColumn = $importer->columnMappings()
-                ->where('country_key', true)
-                ->first();
-            
-            $record = null;
-            // Aplicar filtro por país si existe country_code en el importer y hay una columna country_key
-            if ($importer->country_code && $countryKeyColumn) {
-                $query->where($countryKeyColumn->source_column, $importer->country_code);
-                $record = $query->where('id', $recordId)->first();
-            }
-            
-            if($record == null){
-                Log::error('Error processing volunteer', [
-                    'error' => ''
-                ]);
-                
-                return [
-                    'success' => false,
-                    'message' => 'No se encontró el registro'
-                ];
+            if(!$this->getRecord()){
+                return $this->response;
             }
 
-            $columns = $importer->columnMappings()->where('primary_key', false)
-                ->get()
-                ->map(function ($item) use ($record) {
-                    return [
-                        'source' => $item->source_column,
-                        'target' => $item->target_column,
-                    ];
-                });
-
-            if($columns == null){
-                Log::error('Error processing volunteer', [
-                    'error' => ''
-                ]);
-                
-                return [
-                    'success' => false,
-                    'message' => 'No se encontraron columnas para el importador'
-                ];
+            if(!$this->getColumns()){
+                return $this->response;
             }
-
-            // if($record->importado == "1"){
-            //     Log::error('Error processing beneficiary', [
-            //         'error' => ''
-            //     ]);
-                
-            //     return [
-            //         'success' => false,
-            //         'message' => 'El registro ya ha sido importado',
-            //     ];
-            // }
             
-            $volunteer = new Volunteer();
-
-            $uniquenessColumn = $importer->columnMappings()->where('uniqueness_key', true)->first();
-            if($uniquenessColumn){
-                $volunteer = \App\Models\Volunteer::firstOrNew([$uniquenessColumn->target_column => $record->{$uniquenessColumn->source_column}]);
+            if(!$this->processVolunteer()){
+                return $this->response;
             }
 
-            foreach($columns as $column){
-                $volunteer->{$column['target']} = $record->{$column['source']};
+            if(!$this->processVolunteerPersonalReference()){
+                return $this->response;
             }
 
-            $volunteer->typeBeneficiary = $beneficiaryType;
-            $volunteer->fkCodeCountry = $importer->country_code;
-            $volunteer->year = Carbon::now()->year;
-            $volunteer->imported_at = Carbon::now();
-            $volunteer->imported_by = 999999;
-            $volunteer->code = 0;
-            $volunteer->origin = 1;
-            
-            if(!$volunteer->save()){
-                Log::error('Error processing volunteer', [
-                    'error' => '',
-                ]);
-
-                return [
-                    'success' => false,
-                    'message' => 'Error al importar el registro',
-                ];
+            if(!$this->processVolunteerCommitment()){
+                return $this->response;
             }
 
             // $record->Importado = 1;
             // $record->updated_at = Carbon::now();
             
-            if($volunteer->save()){
-                Log::info('Volunteer processed successfully', [
-                    'data' => $volunteer,
-                    'result' => $volunteer
-                ]);
-
-                return [
-                    'success' => true,
-                    'message' => 'Volunteer processed successfully',
-                ];
+            if($this->volunteer && $this->volunteerPersonalReference && $this->volunteerCommitment){
+                $this->setResponse(true, 'Volunteer processed successfully');
+                return $this->response;
             }
 
-            Log::error('Error processing volunteer', [
-                'error' => '',
-            ]);
-
-            return [
-                'success' => false,
-                'message' => 'Error al importar el voluntario',
-            ];
-
+            return $this->response;
         } catch (Exception $e) {
-            Log::error('Error processing volunteer', [
-                'error' => $e->getMessage(),
-            ]);
-
-            return [
-                'success' => false,
-                'message' => 'Error processing volunteer: ' . $e->getMessage(),
-            ];
+            $this->setResponse(false, 'Error processing volunteer: ' . $e->getMessage());
+            return $this->response;
         }
+    }
+
+    private function setResponse(bool $success, string $message){
+        $this->response['success'] = $success;
+        $this->response['message'] = $message;
+    }
+
+    private function getRecord(){
+        $table = $this->importer->source_table;
+        $query = DB::connection('gwforms')->table($table);
+        
+        $countryKeyColumn = $this->importer->columnMappings()
+            ->where('country_key', true)
+            ->first();
+        
+        if($this->importer->country_code && $countryKeyColumn){
+            $query->where($countryKeyColumn->source_column, $this->importer->country_code);
+            $this->record = $query->where('id', $this->recordId)->first();
+        };
+
+        if($this->record){
+            return true;
+        } else {
+            $this->setResponse(false, 'No se encontró el registro');
+            return false;
+        }
+    }
+
+    private function getColumns(){
+        $emptyColumns = 0;
+        foreach($this->columns as $table => $columns){
+            $columns = $this->getTableColumns($table);
+            $this->columns[$table] = $columns;
+            if(count($columns) == 0){
+                $emptyColumns++;
+            }
+        }
+
+        if($emptyColumns == 0){
+            return true;
+        } else {
+            $this->setResponse(false, 'No se encontraron columnas para el importador');
+            return false;
+        }
+    }
+
+    private function processVolunteer(){
+        $volunteer = new Volunteer();
+
+        $columns = $this->columns[$volunteer->getTable()];
+
+        $uniquenessColumn = $this->importer->columnMappings()->where('target_table', 'volunteers')->where('uniqueness_key', true)->first();
+        if($uniquenessColumn){
+            $volunteer = Volunteer::firstOrNew([$uniquenessColumn->target_column => $this->record->{$uniquenessColumn->source_column}]);
+        }
+
+        foreach($columns as $column){
+            $volunteer->{$column['target']} = $this->record->{$column['source']};
+        }
+
+        $volunteer->typeBeneficiary = $this->beneficiaryType;
+        $volunteer->fkCodeCountry = $this->importer->country_code;
+        $volunteer->year = Carbon::now()->year;
+        $volunteer->imported_at = Carbon::now();
+        $volunteer->imported_by = 999999;
+        $volunteer->code = 0;
+        $volunteer->origin = 1;
+        
+        if($volunteer->save()){
+            $this->volunteer = $volunteer;
+            return true;
+        } else {
+            $this->setResponse(false, 'Error al guardar el voluntario');
+            return false;
+        }
+    }
+
+    private function processVolunteerPersonalReference(){
+        $volunteerPersonalReference = new VolunteerPersonalReference();
+
+        $columns = $this->columns[$volunteerPersonalReference->getTable()];
+        
+        foreach($columns as $column){
+            $volunteerPersonalReference->{$column['target']} = $this->record->{$column['source']};
+        }
+
+        $volunteerPersonalReference->idVoluntario = $this->volunteer->id;
+
+        if($volunteerPersonalReference->save()){
+            $this->volunteerPersonalReference = $volunteerPersonalReference;
+            return true;
+        } else {
+            $this->setResponse(false, 'Error al guardar la referencia personal del voluntario');
+            return false;
+        }
+    }
+
+    private function processVolunteerCommitment(){
+        $volunteerCommitment = new VolunteerCommitment();
+
+        $columns = $this->columns[$volunteerCommitment->getTable()];
+
+        foreach($columns as $column){
+            $volunteerCommitment->{$column['target']} = $this->record->{$column['source']};
+        }
+
+        $volunteerCommitment->fkIdVoluntary = $this->volunteer->id;
+
+        if($volunteerCommitment->save()){
+            $this->volunteerCommitment = $volunteerCommitment;
+            return true;
+        } else {
+            $this->setResponse(false, 'Error al guardar el compromiso del voluntario');
+            return false;
+        }
+    }
+
+    private function getTableColumns(String $table){
+        return $this->importer->columnMappings()->where('target_table', $table)->where('primary_key', false)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'source' => $item->source_column,
+                    'target' => $item->target_column,
+                ];
+            });
     }
 } 

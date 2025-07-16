@@ -121,14 +121,14 @@ class ImportRecordController extends Controller
 
         switch($importer->target_table){
             case 'volunteerings':
-                $processRecord = new ProcessVolunteer();
+                $processRecord = new ProcessVolunteer($importer, $recordId, $request->beneficiary_type);
                 break;
             default: # case 'beneficiaries':
-                $processRecord = new ProcessBeneficiary();
+                $processRecord = new ProcessBeneficiary($importer, $recordId, $request->beneficiary_type);
                 break;
         }    
         
-        $result = $processRecord->execute($importer, $recordId, $request->beneficiary_type);
+        $result = $processRecord->execute();
         
         return response()->json([
             'message' => $result['message'],

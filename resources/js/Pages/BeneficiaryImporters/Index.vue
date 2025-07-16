@@ -14,50 +14,11 @@ defineProps({
 });
 
 const pageActions = [
-    // {
-    //     href: route('beneficiary_importers.create'),
-    //     label: 'Crear Importador para Beneficiarios'
-    // },
     {
-        href: route('volunteer_importers.create'),
-        label: 'Crear Importador para Voluntarios   '
+        href: route('beneficiary_importers.create'),
+        label: 'Crear Importador'
     }
 ]
-
-const showRoute = (importer) => {
-    if(importer.target_table === 'volunteerings') {
-        return route('volunteer_importers.show', importer.id);
-    }
-    return route('beneficiary_importers.show', importer.id);
-}
-
-const editRoute = (importer) => {
-    if(importer.target_table === 'volunteerings') {
-        return route('volunteer_importers.edit', importer.id);
-    }
-    return route('beneficiary_importers.edit', importer.id);
-}
-
-const destroyRoute = (importer) => {
-    if(importer.target_table === 'volunteerings') {
-        return route('volunteer_importers.destroy', importer.id);
-    }
-    return route('beneficiary_importers.destroy', importer.id);
-}
-
-const restoreRoute = (importer) => {
-    if(importer.target_table === 'volunteerings') {
-        return route('volunteer_importers.restore', importer.id);
-    }
-    return route('beneficiary_importers.restore', importer.id);
-}
-
-const forceDeleteRoute = (importer) => {
-    if(importer.target_table === 'volunteerings') {
-        return route('volunteer_importers.force-delete', importer.id);
-    }
-    return route('beneficiary_importers.force-delete', importer.id);
-}
 </script>
 
 <template>
@@ -144,14 +105,14 @@ const forceDeleteRoute = (importer) => {
                             <div class="flex space-x-2">
                                 <!-- Acciones para importadores activos -->
                                 <template v-if="!importer.deleted_at">
-                                    <Link :href="showRoute(importer)" class="text-blue-600 hover:text-blue-900">
+                                    <Link :href="route('beneficiary_importers.show', importer.id)" class="text-blue-600 hover:text-blue-900">
                                         Ver
                                     </Link>
-                                    <Link :href="editRoute(importer)" class="text-indigo-600 hover:text-indigo-900">
+                                    <Link :href="route('beneficiary_importers.edit', importer.id)" class="text-indigo-600 hover:text-indigo-900">
                                         Editar
                                     </Link>
                                     <button
-                                        @click="$inertia.delete(destroyRoute(importer))"
+                                        @click="$inertia.delete(route('beneficiary_importers.destroy', importer.id))"
                                         class="text-red-600 hover:text-red-900"
                                         onclick="return confirm('¿Está seguro de que desea eliminar este importador?')"
                                     >
@@ -161,18 +122,18 @@ const forceDeleteRoute = (importer) => {
                                 
                                 <!-- Acciones para importadores eliminados -->
                                 <template v-else>
-                                    <Link :href="showRoute(importer)" class="text-blue-600 hover:text-blue-900">
+                                    <Link :href="route('beneficiary_importers.show', importer.id)" class="text-blue-600 hover:text-blue-900">
                                         Ver
                                     </Link>
                                     <button
-                                        @click="$inertia.patch(restoreRoute(importer))"
+                                        @click="$inertia.patch(route('beneficiary_importers.restore', importer.id))"
                                         class="text-green-600 hover:text-green-900"
                                         onclick="return confirm('¿Está seguro de que desea restaurar este importador?')"
                                     >
                                         Restaurar
                                     </button>
                                     <button
-                                        @click="$inertia.delete(forceDeleteRoute(importer))"
+                                        @click="$inertia.delete(route('beneficiary_importers.force-delete', importer.id))"
                                         class="text-red-600 hover:text-red-900"
                                         onclick="return confirm('¿Está seguro de que desea eliminar permanentemente este importador? Esta acción no se puede deshacer.')"
                                     >
