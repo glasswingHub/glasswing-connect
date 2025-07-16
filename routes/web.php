@@ -33,12 +33,12 @@ Route::middleware('auth')->group(function () {
     Route::post('importers/volunteers/get-target-table-columns', [VolunteerImporterController::class, 'getTargetTableColumns'])->name('volunteer_importers.get-target-table-columns');
     Route::get('importers/volunteers/{importer}/column-mappings', [VolunteerImporterController::class, 'getColumnMappings'])->name('volunteer_importers.get-column-mappings');
 
-    // Route::resource('importers/beneficiaries', BeneficiaryImporterController::class)->names('beneficiary_importers');
-    // Route::patch('importers/beneficiaries/{importer}/restore', [BeneficiaryImporterController::class, 'restore'])->name('beneficiary_importers.restore');
-    // Route::delete('importers/beneficiaries/{importer}/force-delete', [BeneficiaryImporterController::class, 'forceDelete'])->name('beneficiary_importers.force-delete');
-    // Route::post('importers/beneficiaries/get-source-table-columns', [BeneficiaryImporterController::class, 'getSourceTableColumns'])->name('beneficiary_importers.get-source-table-columns');
-    // Route::post('importers/beneficiaries/get-target-table-columns', [BeneficiaryImporterController::class, 'getTargetTableColumns'])->name('beneficiary_importers.get-target-table-columns');
-    // Route::get('importers/beneficiaries/{importer}/column-mappings', [BeneficiaryImporterController::class, 'getColumnMappings'])->name('beneficiary_importers.get-column-mappings');
+    Route::resource('importers/beneficiaries', BeneficiaryImporterController::class)->names('beneficiary_importers');
+    Route::patch('importers/beneficiaries/{importer}/restore', [BeneficiaryImporterController::class, 'restore'])->name('beneficiary_importers.restore');
+    Route::delete('importers/beneficiaries/{importer}/force-delete', [BeneficiaryImporterController::class, 'forceDelete'])->name('beneficiary_importers.force-delete');
+    Route::post('importers/beneficiaries/get-source-table-columns', [BeneficiaryImporterController::class, 'getSourceTableColumns'])->name('beneficiary_importers.get-source-table-columns');
+    Route::post('importers/beneficiaries/get-target-table-columns', [BeneficiaryImporterController::class, 'getTargetTableColumns'])->name('beneficiary_importers.get-target-table-columns');
+    Route::get('importers/beneficiaries/{importer}/column-mappings', [BeneficiaryImporterController::class, 'getColumnMappings'])->name('beneficiary_importers.get-column-mappings');
 
     Route::get('imports', [ImportController::class, 'index'])
         ->name('imports.index');
