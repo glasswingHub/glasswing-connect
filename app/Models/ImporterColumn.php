@@ -18,6 +18,7 @@ class ImporterColumn extends Model
         'show_in_list',
         'country_key',
         'uniqueness_key',
+        'target_table',
     ];
 
     /**

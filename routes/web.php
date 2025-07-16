@@ -7,6 +7,8 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ImportRecordController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VolunteerImporterController;
+use App\Http\Controllers\BeneficiaryImporterController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -22,13 +24,21 @@ Route::middleware('auth')->group(function () {
     Route::patch('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
     Route::delete('users/{user}/force-delete', [UserController::class, 'forceDelete'])->name('users.force-delete');
 
+    Route::resource('importers', ImporterController::class)->only(['index'])->names('importers');
 
-    Route::resource('importers', ImporterController::class);
-    Route::patch('importers/{importer}/restore', [ImporterController::class, 'restore'])->name('importers.restore');
-    Route::delete('importers/{importer}/force-delete', [ImporterController::class, 'forceDelete'])->name('importers.force-delete');
-    Route::post('importers/get-source-table-columns', [ImporterController::class, 'getSourceTableColumns'])->name('importers.get-source-table-columns');
-    Route::post('importers/get-target-table-columns', [ImporterController::class, 'getTargetTableColumns'])->name('importers.get-target-table-columns');
-    Route::get('importers/{importer}/column-mappings', [ImporterController::class, 'getColumnMappings'])->name('importers.get-column-mappings');
+    Route::resource('importers/volunteers', VolunteerImporterController::class)->names('volunteer_importers');
+    Route::patch('importers/volunteers/{importer}/restore', [VolunteerImporterController::class, 'restore'])->name('volunteer_importers.restore');
+    Route::delete('importers/volunteers/{importer}/force-delete', [VolunteerImporterController::class, 'forceDelete'])->name('volunteer_importers.force-delete');
+    Route::post('importers/volunteers/get-source-table-columns', [VolunteerImporterController::class, 'getSourceTableColumns'])->name('volunteer_importers.get-source-table-columns');
+    Route::post('importers/volunteers/get-target-table-columns', [VolunteerImporterController::class, 'getTargetTableColumns'])->name('volunteer_importers.get-target-table-columns');
+    Route::get('importers/volunteers/{importer}/column-mappings', [VolunteerImporterController::class, 'getColumnMappings'])->name('volunteer_importers.get-column-mappings');
+
+    // Route::resource('importers/beneficiaries', BeneficiaryImporterController::class)->names('beneficiary_importers');
+    // Route::patch('importers/beneficiaries/{importer}/restore', [BeneficiaryImporterController::class, 'restore'])->name('beneficiary_importers.restore');
+    // Route::delete('importers/beneficiaries/{importer}/force-delete', [BeneficiaryImporterController::class, 'forceDelete'])->name('beneficiary_importers.force-delete');
+    // Route::post('importers/beneficiaries/get-source-table-columns', [BeneficiaryImporterController::class, 'getSourceTableColumns'])->name('beneficiary_importers.get-source-table-columns');
+    // Route::post('importers/beneficiaries/get-target-table-columns', [BeneficiaryImporterController::class, 'getTargetTableColumns'])->name('beneficiary_importers.get-target-table-columns');
+    // Route::get('importers/beneficiaries/{importer}/column-mappings', [BeneficiaryImporterController::class, 'getColumnMappings'])->name('beneficiary_importers.get-column-mappings');
 
     Route::get('imports', [ImportController::class, 'index'])
         ->name('imports.index');
