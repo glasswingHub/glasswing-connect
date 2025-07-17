@@ -116,7 +116,7 @@ class ImportRecordController extends Controller
             'record' => $record,
             'columns' => $visibleColumns,
             'beneficiaryTypes' => $beneficiaryTypes,
-            'beneficiaryType' => $record->{$beneficiaryTypeKeyColumn->source_column},
+            'beneficiaryType' => $beneficiaryTypeKeyColumn ? $record->{$beneficiaryTypeKeyColumn->source_column} : null,
         ]);
     }
 
