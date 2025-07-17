@@ -35,7 +35,7 @@ class ImportRecordController extends Controller
                 ];
             });
 
-        $query = DB::connection('gwforms')->table($table)->where('import', '!=', 1);
+        $query = DB::connection('gwforms')->table($table)->where('import', null);
         
         // Obtener la columna marcada como country_key
         $countryKeyColumn = $importer->columnMappings()
