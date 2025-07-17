@@ -372,7 +372,7 @@ class BeneficiaryImporterController extends Controller
 
         try {
             $columns = collect(DB::connection('gwdata')
-                ->select("SELECT COLUMN_NAME as name, DATA_TYPE as type FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? ORDER BY ORDINAL_POSITION", [$table_name]))
+                ->select("SELECT COLUMN_NAME as name, DATA_TYPE as type FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? ORDER BY COLUMN_NAME", [$table_name]))
                 ->map(function ($column) {
                     return [
                         'value' => $column->name,

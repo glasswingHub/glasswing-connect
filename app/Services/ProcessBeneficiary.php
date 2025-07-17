@@ -11,7 +11,7 @@ use Carbon\Carbon;
 
 class ProcessBeneficiary
 {
-    public function execute(Importer $importer, int $recordId, int $beneficiaryType): array
+    public function execute(Importer $importer, $recordId, int $beneficiaryType): array
     {
         try {
             // Verificar que el registro pertenece al país correcto antes de procesarlo

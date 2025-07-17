@@ -20,7 +20,7 @@ class ProcessVolunteer
     public $volunteerCommitment;
     public $response;
 
-    public function __construct(Importer $importer, int $recordId, int $beneficiaryType){
+    public function __construct(Importer $importer, $recordId, int $beneficiaryType){
         $this->importer = $importer;
         $this->recordId = $recordId;
         $this->record = null;
@@ -143,7 +143,6 @@ class ProcessVolunteer
         $volunteer->imported_at = Carbon::now();
         $volunteer->imported_by = 999999;
         $volunteer->code = 0;
-        $volunteer->origin = 1;
         
         if($volunteer->save()){
             $this->volunteer = $volunteer;
