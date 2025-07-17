@@ -10,6 +10,7 @@ use App\Models\Volunteer;
 use App\Models\VolunteerPersonalReference;
 use App\Models\VolunteerCommitment;
 use Carbon\Carbon;
+use App\Models\User;
 
 class ProcessVolunteer
 {
@@ -19,12 +20,14 @@ class ProcessVolunteer
     public $volunteerPersonalReference;
     public $volunteerCommitment;
     public $response;
+    public $user;
 
-    public function __construct(Importer $importer, $recordId, int $beneficiaryType){
+    public function __construct(Importer $importer, $recordId, int $beneficiaryType, User $user){
         $this->importer = $importer;
         $this->recordId = $recordId;
         $this->record = null;
         $this->beneficiaryType = $beneficiaryType;
+        $this->user = $user;
         $this->response = [
             'success' => false,
             'message' => ''
@@ -141,6 +144,7 @@ class ProcessVolunteer
         $volunteer->imported_at = Carbon::now();
         $volunteer->imported_by = 999999;
         $volunteer->code = 0;
+        $volunteer->emailEncargado = $this->user->email;
         
         if($volunteer->save()){
             $this->volunteer = $volunteer;
