@@ -19,6 +19,7 @@ class ImporterColumn extends Model
         'country_key',
         'uniqueness_key',
         'target_table',
+        'beneficiary_type_key',
     ];
 
     /**

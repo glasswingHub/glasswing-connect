@@ -11,6 +11,7 @@ const props = defineProps({
     record: Object,
     columns: Object,
     beneficiaryTypes: Array,
+    beneficiaryType: Number,
 });
 
 const recordFields = computed(() => {
@@ -36,6 +37,8 @@ const loading = ref(false);
 const selectedBeneficiaryType = ref('');
 
 async function handleImport() {
+    selectedBeneficiaryType.value = props.beneficiaryType;
+
     // Validación para evitar submit si no se ha seleccionado un tipo de beneficiario
     if (!selectedBeneficiaryType.value) {
         message.value = 'Debe seleccionar un tipo de beneficiario antes de importar.';
@@ -98,9 +101,9 @@ async function handleImport() {
         <div class="mt-6">
             
             <form @submit.prevent="handleImport">
-                
+            
                 <!-- Beneficiary Type Selection -->
-                <div v-if="beneficiaryTypes && beneficiaryTypes.length > 0" class="mb-4">
+                <div v-if="!beneficiaryType && beneficiaryTypes && beneficiaryTypes.length > 0" class="mb-4">
                     <label for="beneficiary_type" class="block text-sm font-medium text-gray-700 mb-2">
                         Tipo de Beneficiario
                     </label>

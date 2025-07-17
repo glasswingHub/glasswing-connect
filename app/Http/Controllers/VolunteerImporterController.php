@@ -86,6 +86,7 @@ class VolunteerImporterController extends Controller
             'column_mappings.*.show_in_list' => 'boolean',
             'column_mappings.*.country_key' => 'boolean',
             'column_mappings.*.uniqueness_key' => 'boolean',
+            'column_mappings.*.beneficiary_type_key' => 'boolean',
         ]);
 
         $importer = Importer::create([
@@ -117,6 +118,7 @@ class VolunteerImporterController extends Controller
                         'show_in_list' => $mapping['show_in_list'] ?? true,
                         'country_key' => $mapping['country_key'] ?? false,
                         'uniqueness_key' => $mapping['uniqueness_key'] ?? false,
+                        'beneficiary_type_key' => $mapping['beneficiary_type_key'] ?? false,
                         ]);
                     }
                 }
@@ -176,7 +178,7 @@ class VolunteerImporterController extends Controller
     public function edit(string $id)
     {
         $importer = Importer::withTrashed()->findOrFail($id);
-        // $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key']);
+        // $columnMappings = $importer->columnMappings()->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key', 'beneficiary_type_key']);
         $users = User::where('active', true)->orderBy('name')->select('id', 'name', 'email')->get();
         $selectedUserIds = $importer->users()->pluck('users.id');
         
@@ -230,6 +232,7 @@ class VolunteerImporterController extends Controller
             'column_mappings.*.show_in_list' => 'boolean',
             'column_mappings.*.country_key' => 'boolean',
             'column_mappings.*.uniqueness_key' => 'boolean',
+            'column_mappings.*.beneficiary_type_key' => 'boolean',
         ]);
 
         $importer->update([
@@ -266,6 +269,7 @@ class VolunteerImporterController extends Controller
                                 'show_in_list' => $mapping['show_in_list'] ?? true,
                                 'country_key' => $mapping['country_key'] ?? false,
                                 'uniqueness_key' => $mapping['uniqueness_key'] ?? false,
+                                'beneficiary_type_key' => $mapping['beneficiary_type_key'] ?? false,
                             ]);
                         }
                     }
@@ -371,7 +375,7 @@ class VolunteerImporterController extends Controller
     // public function getColumnMappings(string $id)
     // {
     //     $importer = Importer::findOrFail($id);
-    //     $mappings = $importer->columnMappings()->orderBy('target_column', 'asc')->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key']);
+    //     $mappings = $importer->columnMappings()->orderBy('target_column', 'asc')->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key', 'beneficiary_type_key']);
         
     //     return response()->json($mappings);
     // }
@@ -429,7 +433,7 @@ class VolunteerImporterController extends Controller
 
     private function getColumnMappings(Importer $importer, string $target_table)
     {
-        $columns = collect($importer->columnMappings()->where('target_table', $target_table)->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key', 'target_table']))
+        $columns = collect($importer->columnMappings()->where('target_table', $target_table)->get(['id', 'source_column', 'target_column', 'display_name', 'primary_key', 'show_in_list', 'country_key', 'uniqueness_key', 'target_table', 'beneficiary_type_key']))
             ->map(function ($column) {
                 return [
                     'target_table' => $column->target_table,
@@ -440,6 +444,7 @@ class VolunteerImporterController extends Controller
                     'show_in_list' => $column->show_in_list,
                     'country_key' => $column->country_key,
                     'uniqueness_key' => $column->uniqueness_key,
+                    'beneficiary_type_key' => $column->beneficiary_type_key,
                 ];
             })->toArray();
         

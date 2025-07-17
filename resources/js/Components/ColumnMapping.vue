@@ -51,7 +51,8 @@ const addMapping = () => {
         primary_key: false,
         country_key: false,
         show_in_list: true,
-        uniqueness_key: false
+        uniqueness_key: false,
+        beneficiary_type_key: false,
     });
 };
 
@@ -208,6 +209,18 @@ const getAvailableTargetColumns = () => {
                             Mostrar en Lista
                         </label>
                     </div>
+
+                    <!-- Beneficiary Type Key -->
+                    <div class="flex items-center">
+                        <Checkbox
+                            v-model="mapping.beneficiary_type_key"
+                            @update:model-value="updateMapping(index, 'beneficiary_type_key', $event)"
+                            name="beneficiary_type_key"
+                        />
+                        <label class="ml-2 text-sm font-medium text-gray-700">
+                            Es Llave Tipo Beneficiario
+                        </label>
+                    </div>
                 </div>
 
                 <!-- Mapping Preview -->
@@ -220,7 +233,7 @@ const getAvailableTargetColumns = () => {
                             ({{ mapping.display_name }})
                         </span>
                     </p>
-                    <div v-if="mapping.primary_key || mapping.country_key || mapping.uniqueness_key || !mapping.show_in_list" class="mt-1 text-xs text-blue-600">
+                    <div v-if="mapping.primary_key || mapping.country_key || mapping.uniqueness_key || !mapping.show_in_list || mapping.beneficiary_type_key" class="mt-1 text-xs text-blue-600">
                         <span v-if="mapping.primary_key" class="inline-block bg-blue-200 text-blue-800 px-2 py-1 rounded mr-2">
                             Llave Primaria
                         </span>
@@ -230,8 +243,11 @@ const getAvailableTargetColumns = () => {
                         <span v-if="mapping.uniqueness_key" class="inline-block bg-green-200 text-green-800 px-2 py-1 rounded mr-2">
                             Llave Única
                         </span>
-                        <span v-if="!mapping.show_in_list" class="inline-block bg-gray-200 text-gray-800 px-2 py-1 rounded">
+                        <span v-if="!mapping.show_in_list" class="inline-block bg-gray-200 text-gray-800 px-2 py-1 rounded mr-2">
                             Oculto en Lista
+                        </span>
+                        <span v-if="mapping.beneficiary_type_key" class="inline-block bg-red-200 text-red-800 px-2 py-1 rounded mr-2">
+                            Llave Tipo Beneficiario
                         </span>
                     </div>
                 </div>
@@ -254,6 +270,7 @@ const getAvailableTargetColumns = () => {
                 <p>Llaves primarias: {{ columnMappings.filter(m => m.primary_key).length }}</p>
                 <p>Llaves país: {{ columnMappings.filter(m => m.country_key).length }}</p>
                 <p>Llaves únicas: {{ columnMappings.filter(m => m.uniqueness_key).length }}</p>
+                <p>Llaves tipo beneficiario: {{ columnMappings.filter(m => m.beneficiary_type_key).length }}</p>
                 <p>Columnas visibles en lista: {{ columnMappings.filter(m => m.show_in_list).length }}</p>
             </div>
         </div>

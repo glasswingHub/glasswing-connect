@@ -220,12 +220,13 @@ const pageActions = [
             </div>
 
             <!-- Mapeo de Columnas -->
-            <ColumnMappingInstructions :target-table="form.target_table" />
 
             <div v-if="sourceTableColumns.length > 0" class="mt-8" v-for="(columns, table_name) in targetTableColumns">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">
                     Columnas de la tabla destino: <span class="font-bold">{{ table_name }}</span>
                 </h3>
+
+                <ColumnMappingInstructions :target-table="table_name" />
 
                 <ColumnMapping
                     :target-table="table_name"

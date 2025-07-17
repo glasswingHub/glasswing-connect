@@ -93,6 +93,10 @@ class ImportRecordController extends Controller
             ->where('country_key', true)
             ->first();
 
+        $beneficiaryTypeKeyColumn = $importer->columnMappings()
+            ->where('beneficiary_type_key', true)
+            ->first();
+
         $record = null;
         
         // Aplicar filtro por país si existe country_code en el importer y hay una columna country_key
@@ -112,6 +116,7 @@ class ImportRecordController extends Controller
             'record' => $record,
             'columns' => $visibleColumns,
             'beneficiaryTypes' => $beneficiaryTypes,
+            'beneficiaryType' => $record->{$beneficiaryTypeKeyColumn->source_column},
         ]);
     }
 

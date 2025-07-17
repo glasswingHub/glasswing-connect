@@ -65,8 +65,7 @@ class ProcessVolunteer
             }
             
             if($this->volunteer && $this->volunteerPersonalReference && $this->volunteerCommitment){
-                $this->record->import = 1;
-                $this->record->save();
+                $this->markRecordAsImported();
                 $this->setResponse(true, 'Volunteer processed successfully');
                 return $this->response;
             }
@@ -201,5 +200,9 @@ class ProcessVolunteer
                     'target' => $item->target_column,
                 ];
             });
+    }
+
+    private function markRecordAsImported(){
+        DB::connection('gwforms')->table($this->importer->source_table)->where('id', $this->recordId)->update(['import' => 1]);
     }
 } 

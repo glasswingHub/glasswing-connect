@@ -9,9 +9,14 @@ const props = defineProps({
 // Define the required columns based on target table
 const getRequiredColumns = () => {
     switch (props.targetTable) {
-        case 'volunteerings':
         case 'beneficiaries':
             return ['name', 'surname', 'fechaNac'];
+        case 'volunteerings':
+            return ['fkCodeCountry', 'name', 'surname', 'fechaNac', 'genre_id', 'DNI', 'hourSocial', 'origin', 'volunteering_shirt_size_id', 'voice_image', 'firmaConducta'];
+        case 'referenciasPersonalesVoluntarios':
+            return ['name', 'phone'];
+        case 'commitment_voluntary':
+            return ['dateStart', 'dateEnd'];
         default:
             return [];
     }
@@ -30,11 +35,10 @@ const requiredColumns = getRequiredColumns();
                 Recuerda que para que un importador este configurado correctamente:
             </p>
             <ul class="list-disc list-inside text-sm text-gray-500 mt-2">
-                <li>Debes indicar una columna como Llave primaria y una como Llave país.</li>
-                <li>Debes indicar una columna como Llave única si es necesario.</li>
+                <li v-if="targetTable === 'volunteerings'">Debes indicar una columna como Llave primaria y una como Llave país.</li>
+                <!-- <li v-if="targetTable === 'volunteerings'">Debes indicar una columna como Llave única si es necesario.</li> -->
                 <li v-if="requiredColumns.length > 0">
-                    Cuando la tabla de destino es <span class="font-bold">{{ targetTable }}</span>, 
-                    debes mapear las columnas: 
+                    Debes mapear las columnas: 
                     <span class="font-bold">{{ requiredColumns.join(', ') }}</span>.
                 </li>
             </ul>
