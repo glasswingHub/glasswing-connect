@@ -63,11 +63,10 @@ class ProcessVolunteer
             if(!$this->processVolunteerCommitment()){
                 return $this->response;
             }
-
-            // $record->Importado = 1;
-            // $record->updated_at = Carbon::now();
             
             if($this->volunteer && $this->volunteerPersonalReference && $this->volunteerCommitment){
+                $this->record->import = 1;
+                $this->record->save();
                 $this->setResponse(true, 'Volunteer processed successfully');
                 return $this->response;
             }
