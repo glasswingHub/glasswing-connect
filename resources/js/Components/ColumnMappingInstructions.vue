@@ -12,7 +12,7 @@ const getRequiredColumns = () => {
         case 'beneficiaries':
             return ['name', 'surname', 'fechaNac'];
         case 'volunteerings':
-            return ['fkCodeCountry', 'name', 'surname', 'fechaNac', 'genre_id', 'DNI', 'hourSocial', 'origin', 'volunteering_shirt_size_id', 'voice_image', 'firmaConducta'];
+            return ['fkCodeCountry', 'name', 'surname', 'fechaNac', 'genre_id', 'DNI', 'hourSocial', 'origin', 'volunteering_shirt_size_id', 'voice_image', 'firmaConducta', 'typeBeneficiary', 'menorEdad', 'permisoAdulto'];
         case 'referenciasPersonalesVoluntarios':
             return ['name', 'phone'];
         case 'commitment_voluntary':

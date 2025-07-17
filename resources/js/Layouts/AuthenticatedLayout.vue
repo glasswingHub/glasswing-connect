@@ -39,7 +39,7 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Dashboard
                                 </NavLink>
-                                <NavLink
+                                <!-- <NavLink
                                     :href="route('users.index')"
                                     :active="route().current('users')"
                                 >
@@ -56,7 +56,7 @@ const showingNavigationDropdown = ref(false);
                                     :active="route().current('importers')"
                                 >
                                     Importadores
-                                </NavLink>
+                                </NavLink> -->
                                 <NavLink
                                     :href="route('imports.index')"
                                     :active="route().current('imports')"
@@ -170,7 +170,7 @@ const showingNavigationDropdown = ref(false);
                         >
                             Dashboard
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink
+                        <!-- <ResponsiveNavLink
                             :href="route('users.index')"
                             :active="route().current('users')"
                         >
@@ -187,7 +187,7 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('importers')"
                         >
                             Importadores
-                        </ResponsiveNavLink>
+                        </ResponsiveNavLink> -->
                         <ResponsiveNavLink
                             :href="route('imports.index')"
                             :active="route().current('imports')"
