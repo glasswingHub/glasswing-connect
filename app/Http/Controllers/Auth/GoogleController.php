@@ -37,6 +37,10 @@ class GoogleController extends Controller
                 return redirect()->route('login')->withErrors(['email' => 'Usuario inactivo. Por favor, contacta al administrador.']);
             }
 
+            if(!$user->role){
+                return redirect()->route('login')->withErrors(['email' => 'Usuario no tiene un rol asignado. Por favor, contacta al administrador.']);
+            }
+
             $result = $user->update([
                 'name' => $googleUser->getName(),
                 'google_id' => $googleUser->getId(),
