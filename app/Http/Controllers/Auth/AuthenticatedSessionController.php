@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -41,6 +42,16 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+
+        $user = Auth::user();
+
+        // Revocar token si existe
+        if ($user->google_token) {
+            Http::asForm()->post('https://oauth2.googleapis.com/revoke', [
+                'token' => $user->google_token,
+            ]);
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
