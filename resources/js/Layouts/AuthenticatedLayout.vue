@@ -39,25 +39,35 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Dashboard
                                 </NavLink>
-                                <!-- <NavLink
+                                <NavLink
+                                    v-if="$page.props.auth.user.permissions && $page.props.auth.user.permissions.includes('users')"
                                     :href="route('users.index')"
                                     :active="route().current('users')"
                                 >
                                     Usuarios
                                 </NavLink>
                                 <NavLink
+                                    v-if="$page.props.auth.user.permissions && $page.props.auth.user.permissions.includes('roles')"
+                                    :href="route('roles.index')"
+                                    :active="route().current('roles')"
+                                >
+                                    Roles
+                                </NavLink>
+                                <!-- <NavLink
                                     :href="route('registrations.index')"
                                     :active="route().current('registrations')"
                                 >
                                     Personas registradas
-                                </NavLink>
+                                </NavLink> -->
                                 <NavLink
+                                    v-if="$page.props.auth.user.permissions && $page.props.auth.user.permissions.includes('importers')"
                                     :href="route('importers.index')"
                                     :active="route().current('importers')"
                                 >
                                     Importadores
-                                </NavLink> -->
+                                </NavLink>
                                 <NavLink
+                                    v-if="$page.props.auth.user.permissions && $page.props.auth.user.permissions.includes('imports')"
                                     :href="route('imports.index')"
                                     :active="route().current('imports')"
                                 >
@@ -170,25 +180,35 @@ const showingNavigationDropdown = ref(false);
                         >
                             Dashboard
                         </ResponsiveNavLink>
-                        <!-- <ResponsiveNavLink
+                        <ResponsiveNavLink
+                            v-if="$page.props.auth.user.permissions && $page.props.auth.user.permissions.includes('users')"
                             :href="route('users.index')"
                             :active="route().current('users')"
                         >
                             Usuarios
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
+                            v-if="$page.props.auth.user.permissions && $page.props.auth.user.permissions.includes('roles')"
+                            :href="route('roles.index')"
+                            :active="route().current('roles')"
+                        >
+                            Roles
+                        </ResponsiveNavLink>
+                        <!-- <ResponsiveNavLink
                             :href="route('registrations.index')"
                             :active="route().current('registrations')"
                         >
                             Personas registradas
-                        </ResponsiveNavLink>
+                        </ResponsiveNavLink> -->
                         <ResponsiveNavLink
+                            v-if="$page.props.auth.user.permissions && $page.props.auth.user.permissions.includes('importers')"
                             :href="route('importers.index')"
                             :active="route().current('importers')"
                         >
                             Importadores
-                        </ResponsiveNavLink> -->
+                        </ResponsiveNavLink>
                         <ResponsiveNavLink
+                            v-if="$page.props.auth.user.permissions && $page.props.auth.user.permissions.includes('imports')"
                             :href="route('imports.index')"
                             :active="route().current('imports')"
                         >

@@ -28,10 +28,7 @@ class VolunteerImporterController extends Controller
         $importers = $query->paginate(10);
 
         return Inertia::render('VolunteerImporters/Index', [
-            'importers' => $importers,
-            'auth' => [
-                'user' => auth()->user()
-            ]
+            'importers' => $importers
         ]);
     }
 
@@ -165,10 +162,7 @@ class VolunteerImporterController extends Controller
             'importer' => $importer,
             'columnMappings' => $columnMappings,
             'associatedUsers' => $associatedUsers,
-            'countryName' => $countryName,
-            'auth' => [
-                'user' => auth()->user()
-            ]
+            'countryName' => $countryName
         ]);
     }
 
@@ -201,10 +195,7 @@ class VolunteerImporterController extends Controller
             'countries' => $this->getCountries(),
             'users' => $users,
             'selectedUserIds' => $selectedUserIds,
-            'targetTableColumns' => $targetTableColumns,
-            'auth' => [
-                'user' => auth()->user()
-            ]
+            'targetTableColumns' => $targetTableColumns
         ]);
     }
 

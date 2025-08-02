@@ -28,10 +28,7 @@ class BeneficiaryImporterController extends Controller
         $importers = $query->paginate(10);
 
         return Inertia::render('BeneficiaryImporters/Index', [
-            'importers' => $importers,
-            'auth' => [
-                'user' => auth()->user()
-            ]
+            'importers' => $importers
         ]);
     }
 
@@ -139,10 +136,7 @@ class BeneficiaryImporterController extends Controller
             'importer' => $importer,
             'columnMappings' => $columnMappings,
             'associatedUsers' => $associatedUsers,
-            'countryName' => $countryName,
-            'auth' => [
-                'user' => auth()->user()
-            ]
+            'countryName' => $countryName
         ]);
     }
 
@@ -163,10 +157,7 @@ class BeneficiaryImporterController extends Controller
             'countries' => $this->getCountries(),
             'users' => $users,
             'selectedUserIds' => $selectedUserIds,
-            'targetTableColumns' => $this->getTargetTableColumns(),
-            'auth' => [
-                'user' => auth()->user()
-            ]
+            'targetTableColumns' => $this->getTargetTableColumns()
         ]);
     }
 

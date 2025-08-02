@@ -56,6 +56,9 @@ const pageActions = [
                             Email
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rol
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Estado
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -72,6 +75,12 @@ const pageActions = [
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ user.email }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span v-if="user.roles && user.roles.length > 0" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                {{ user.roles[0].name.charAt(0).toUpperCase() + user.roles[0].name.slice(1) }}
+                            </span>
+                            <span v-else class="text-gray-500 text-xs">Sin rol</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span

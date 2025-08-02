@@ -7,6 +7,7 @@ import PageHeader from '@/Components/PageHeader.vue';
 
 const props = defineProps({
     user: Object,
+    currentRole: String,
     auth: Object,
 });
 
@@ -115,6 +116,16 @@ const pageActions = [
             <div>
                 <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Email</h4>
                 <p class="mt-1 text-sm text-gray-900">{{ user.email }}</p>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Rol</h4>
+                <p class="mt-1 text-sm text-gray-900">
+                    <span v-if="currentRole" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {{ currentRole.charAt(0).toUpperCase() + currentRole.slice(1) }}
+                    </span>
+                    <span v-else class="text-gray-500">Sin rol asignado</span>
+                </p>
             </div>
 
             <div>

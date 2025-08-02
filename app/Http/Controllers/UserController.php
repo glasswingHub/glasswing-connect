@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -15,7 +16,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::select('id', 'name', 'email', 'active', 'deleted_at')
+        $query = User::withTrashed()->with('roles')->select('id', 'name', 'email', 'active', 'deleted_at')
             ->orderBy('name');
         if($request->has('search')){
             $query->whereRaw('name LIKE ?', ['%'.$request->search.'%'])
@@ -24,10 +25,7 @@ class UserController extends Controller
         $users = $query->paginate(10);
 
         return Inertia::render('Users/Index', [
-            'users' => $users,
-            'auth' => [
-                'user' => auth()->user()
-            ]
+            'users' => $users
         ]);
     }
 
@@ -36,7 +34,17 @@ class UserController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Users/Create');
+        // Obtener todos los roles disponibles
+        $roles = Role::all()->map(function($role) {
+            return [
+                'value' => $role->name,
+                'label' => ucfirst($role->name)
+            ];
+        });
+        
+        return Inertia::render('Users/Create', [
+            'roles' => $roles
+        ]);
     }
 
     /**
@@ -47,18 +55,24 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'active' => 'boolean'
+            'active' => 'boolean',
+            'role' => 'nullable|string|exists:roles,name'
         ]);
 
         // Generar contraseña aleatoria
         $password = Str::random(12);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($password),
             'active' => $request->active ?? true,
         ]);
+
+        // Asignar rol al usuario si se proporciona
+        if ($request->has('role') && $request->role) {
+            $user->assignRole($request->role);
+        }
 
         return redirect()->route('users.index')
             ->with('success', 'Usuario creado exitosamente. Contraseña generada: ' . $password);
@@ -71,11 +85,12 @@ class UserController extends Controller
     {
         $user = User::withTrashed()->findOrFail($id);
         
+        // Obtener el rol actual del usuario
+        $currentRole = $user->roles->first();
+        
         return Inertia::render('Users/Show', [
             'user' => $user,
-            'auth' => [
-                'user' => auth()->user()
-            ]
+            'currentRole' => $currentRole ? $currentRole->name : null
         ]);
     }
 
@@ -92,11 +107,21 @@ class UserController extends Controller
                 ->with('error', 'No puedes editar tu propio usuario desde esta sección.');
         }
         
+        // Obtener todos los roles disponibles
+        $roles = Role::all()->map(function($role) {
+            return [
+                'value' => $role->name,
+                'label' => ucfirst($role->name)
+            ];
+        });
+        
+        // Obtener el rol actual del usuario
+        $currentRole = $user->roles->first();
+        
         return Inertia::render('Users/Edit', [
             'user' => $user,
-            'auth' => [
-                'user' => auth()->user()
-            ]
+            'roles' => $roles,
+            'currentRole' => $currentRole ? $currentRole->name : ''
         ]);
     }
 
@@ -116,7 +141,8 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'active' => 'boolean'
+            'active' => 'boolean',
+            'role' => 'nullable|string|exists:roles,name'
         ]);
 
         $user->update([
@@ -124,6 +150,15 @@ class UserController extends Controller
             'email' => $request->email,
             'active' => $request->active ?? true,
         ]);
+
+        // Actualizar el rol del usuario
+        if ($request->has('role') && $request->role) {
+            // Remover todos los roles existentes
+            $user->syncRoles([$request->role]);
+        } else {
+            // Si no se selecciona ningún rol, remover todos los roles
+            $user->syncRoles([]);
+        }
 
         return redirect()->route('users.index')
             ->with('success', 'Usuario actualizado exitosamente');
