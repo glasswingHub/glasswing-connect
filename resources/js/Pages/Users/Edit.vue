@@ -6,18 +6,21 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Checkbox from '@/Components/Checkbox.vue';
+import InputSelect from '@/Components/InputSelect.vue';
 import PageActions from '@/Components/PageActions.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 
 const props = defineProps({
     user: Object,
-    auth: Object,
+    roles: Array,
+    currentRole: String,
 });
 
 const form = useForm({
     name: props.user.name,
     email: props.user.email,
     active: props.user.active,
+    role: props.currentRole,
 });
 
 const submit = () => {
@@ -78,6 +81,18 @@ const pageActions = [
                     autocomplete="username"
                 />
                 <InputError class="mt-2" :message="form.errors.email" />
+            </div>
+
+            <div>
+                <InputLabel for="role" value="Rol" />
+                <InputSelect
+                    id="role"
+                    v-model="form.role"
+                    :options="roles"
+                    placeholder="Seleccionar rol..."
+                    class="mt-1 block w-full"
+                />
+                <InputError class="mt-2" :message="form.errors.role" />
             </div>
 
             <div class="flex items-center">

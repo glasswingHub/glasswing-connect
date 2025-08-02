@@ -27,10 +27,7 @@ class ImporterController extends Controller
         $importers = $query->paginate(10);
 
         return Inertia::render('Importers/Index', [
-            'importers' => $importers,
-            'auth' => [
-                'user' => auth()->user()
-            ]
+            'importers' => $importers
         ]);
     }
 }
