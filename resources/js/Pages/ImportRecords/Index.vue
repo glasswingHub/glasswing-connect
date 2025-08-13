@@ -10,8 +10,6 @@ const props = defineProps({
     importer: Object,
     records: Object,
     columns: Array,
-    beneficiaryTypes: Array,
-    shirtSizes: Array,
 });
 
 function goToPage(page) {
@@ -57,8 +55,6 @@ const pageActions = [
                         <ColumnValueTranslator 
                             :column="col"
                             :record="record"
-                            :beneficiary-types="beneficiaryTypes"
-                            :shirt-sizes="shirtSizes"
                         />
                     </td>
                     <td class="px-4 py-2 whitespace-nowrap">

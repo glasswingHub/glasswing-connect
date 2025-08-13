@@ -13,7 +13,9 @@ const props = defineProps({
     columns: Array,
     beneficiaryTypes: Array,
     beneficiaryType: Number,
-    shirtSizes: Array,
+    shirtSizes: Array,  
+    states: Array,
+    municipalities: Array,
 });
 
 const pageActions = [
@@ -80,6 +82,8 @@ async function handleImport() {
                             :record="record"
                             :beneficiary-types="beneficiaryTypes"
                             :shirt-sizes="shirtSizes"
+                            :states="states"
+                            :municipalities="municipalities"
                         />
                     </dd>
                 </div>

@@ -64,8 +64,6 @@ class ImportRecordController extends Controller
             'importer' => $importer,
             'records' => $pagination,
             'columns' => $visibleColumns,
-            'beneficiaryTypes' => $this->getCatalogue('beneficiary_types'),
-            'shirtSizes' => $this->getCatalogue('shirt_sizes'),
         ]);
     }
 
@@ -120,6 +118,8 @@ class ImportRecordController extends Controller
             'beneficiaryTypes' => $this->getCatalogue('beneficiary_types'),
             'beneficiaryType' => $beneficiaryTypeKeyColumn ? $record->{$beneficiaryTypeKeyColumn->source_column} : null,
             'shirtSizes' => $this->getCatalogue('shirt_sizes'),
+            'states' => $this->getStates($importer->country_code),
+            'municipalities' => $this->getMunicipalities($importer->country_code, $record->departamento), # TODO
         ]);
     }
 
@@ -144,7 +144,7 @@ class ImportRecordController extends Controller
         ]);
     }
 
-    private function getCatalogue($table)
+    private function getCatalogue($table, $countryCode = null)
     {
         switch($table){
             case 'beneficiary_types':
@@ -166,5 +166,25 @@ class ImportRecordController extends Controller
             default:
                 return collect([]);
         }
+    }
+
+    private function getStates($countryCode)
+    {
+        return collect(DB::connection('gwdata')->select("SELECT codeState, name FROM states WHERE fkCodeCountry = ?", [$countryCode]))->map(function ($item) {
+            return [
+                'value' => $item->codeState,
+                'label' => $item->name
+            ];
+        });
+    }
+
+    private function getMunicipalities($countryCode, $stateCode)
+    {
+        return collect(DB::connection('gwdata')->select("SELECT municipalities.codeMunicipality, municipalities.name FROM municipalities INNER JOIN states ON municipalities.fkCodeState = states.codeState AND states.fkCodeCountry = ? WHERE municipalities.fkCodeState = ?", [$countryCode, $stateCode]))->map(function ($item) {
+            return [
+                'value' => $item->codeMunicipality,
+                'label' => $item->name
+            ];
+        });
     }
 }
