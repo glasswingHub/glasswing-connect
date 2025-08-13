@@ -56,9 +56,9 @@ const translateColumnValue = (col, record) => {
     case 'origin':
       return parseInt(record[col.key]) === 1 ? 'Nacional' : 'Extranjero';
     case 'typeBeneficiary':
-      return props.beneficiaryTypes.find(type => type.value === record[col.key])?.label;
+      return props.beneficiaryTypes.find(type => type.value === parseInt(record[col.key]))?.label;
     case 'volunteering_shirt_size_id':
-      return props.shirtSizes.find(size => size.value === record[col.key])?.label;
+      return props.shirtSizes.find(size => size.value === parseInt(record[col.key]))?.label;
     case 'departamento':
       return props.states.find(state => state.value === record[col.key])?.label;
     case 'municipio':
