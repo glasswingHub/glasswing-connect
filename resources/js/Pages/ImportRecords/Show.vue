@@ -5,23 +5,15 @@ import { computed, ref  } from 'vue';
 import axios from 'axios';
 import PageActions from '@/Components/PageActions.vue';
 import PageHeader from '@/Components/PageHeader.vue';
+import ColumnValueTranslator from '@/Components/ColumnValueTranslator.vue';
 
 const props = defineProps({
     importer: Object,
     record: Object,
-    columns: Object,
+    columns: Array,
     beneficiaryTypes: Array,
     beneficiaryType: Number,
-});
-
-const recordFields = computed(() => {
-    if (!props.record) return [];
-    return props.columns.map((col) => {
-        return {
-            field: col.label,
-            value: props.record[col.key]
-        }
-    });
+    shirtSizes: Array,
 });
 
 const pageActions = [
@@ -79,19 +71,16 @@ async function handleImport() {
         />
             
         <dl class="divide-y divide-gray-200">
-            <template v-for="(field) in recordFields" :key="field">
+            <template v-for="(col) in props.columns" :key="col">
                 <div class="py-3 flex justify-between text-sm">
-                    <dt class="font-medium text-gray-600">{{ field.field }}</dt>
+                    <dt class="font-medium text-gray-600">{{ col.label }}</dt>
                     <dd class="text-gray-900 text-right">
-                        <span v-if="field.value === null" class="text-gray-400 italic">
-                            Nulo
-                        </span>
-                        <span v-else-if="field.value === ''" class="text-gray-400 italic">
-                            Vacío
-                        </span>
-                        <span v-else>
-                            {{ field.value }}
-                        </span>
+                        <ColumnValueTranslator 
+                            :column="col"
+                            :record="record"
+                            :beneficiary-types="beneficiaryTypes"
+                            :shirt-sizes="shirtSizes"
+                        />
                     </dd>
                 </div>
             </template>

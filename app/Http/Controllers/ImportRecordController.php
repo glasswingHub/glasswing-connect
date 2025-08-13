@@ -32,6 +32,7 @@ class ImportRecordController extends Controller
                 return [
                     'key' => $item->source_column,
                     'label' => $item->display_name,
+                    'ref' => $item->target_column,
                 ];
             });
 
@@ -63,6 +64,8 @@ class ImportRecordController extends Controller
             'importer' => $importer,
             'records' => $pagination,
             'columns' => $visibleColumns,
+            'beneficiaryTypes' => $this->getCatalogue('beneficiary_types'),
+            'shirtSizes' => $this->getCatalogue('shirt_sizes'),
         ]);
     }
 
@@ -82,6 +85,7 @@ class ImportRecordController extends Controller
                 return [
                     'key' => $item->source_column,
                     'label' => $item->display_name,
+                    'ref' => $item->target_column,
                 ];
             });
 
@@ -109,14 +113,13 @@ class ImportRecordController extends Controller
             abort(404, 'Registro no encontrado');
         }
 
-        $beneficiaryTypes = $this->getBeneficiaryTypes($importer->target_table);
-
         return Inertia::render('ImportRecords/Show', [
             'importer' => $importer,
             'record' => $record,
             'columns' => $visibleColumns,
-            'beneficiaryTypes' => $beneficiaryTypes,
+            'beneficiaryTypes' => $this->getCatalogue('beneficiary_types'),
             'beneficiaryType' => $beneficiaryTypeKeyColumn ? $record->{$beneficiaryTypeKeyColumn->source_column} : null,
+            'shirtSizes' => $this->getCatalogue('shirt_sizes'),
         ]);
     }
 
@@ -141,23 +144,27 @@ class ImportRecordController extends Controller
         ]);
     }
 
-    private function getBeneficiaryTypes($targetTable)
+    private function getCatalogue($table)
     {
-        switch($targetTable){
-            case 'volunteerings':
+        switch($table){
+            case 'beneficiary_types':
                 return collect(DB::connection('gwdata')->select("SELECT id, name FROM type_beneficiarios WHERE typePerson = ?", [2]))->map(function ($item) {
                     return [
                         'value' => $item->id,
                         'label' => $item->name
                     ];
                 });
-            default: # case 'beneficiaries':
-                return collect(DB::connection('gwdata')->select("SELECT id, name FROM type_beneficiarios WHERE typePerson = ?", [1]))->map(function ($item) {
+                break;
+            case 'shirt_sizes':
+                return collect(DB::connection('gwdata')->select("SELECT id, name FROM volunteering_shirt_sizes"))->map(function ($item) {
                     return [
                         'value' => $item->id,
                         'label' => $item->name
                     ];
                 });
+                break;
+            default:
+                return collect([]);
         }
     }
 }

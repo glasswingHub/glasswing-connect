@@ -4,11 +4,14 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PageActions from '@/Components/PageActions.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import ListEmpty from '@/Components/ListEmpty.vue';
+import ColumnValueTranslator from '@/Components/ColumnValueTranslator.vue';
 
 const props = defineProps({
     importer: Object,
     records: Object,
     columns: Array,
+    beneficiaryTypes: Array,
+    shirtSizes: Array,
 });
 
 function goToPage(page) {
@@ -49,12 +52,17 @@ const pageActions = [
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="(row, idx) in records.data" :key="idx">
+                    <tr v-for="(record, idx) in records.data" :key="idx">
                         <td v-for="col in columns" :key="col" class="px-4 py-2 whitespace-nowrap">
-                            {{ row[col.key] }}
-                        </td>
+                        <ColumnValueTranslator 
+                            :column="col"
+                            :record="record"
+                            :beneficiary-types="beneficiaryTypes"
+                            :shirt-sizes="shirtSizes"
+                        />
+                    </td>
                     <td class="px-4 py-2 whitespace-nowrap">
-                        <Link :href="route('import-records.show', { importer: importer.id, record: row['id'] })" class="text-blue-600 hover:underline">
+                        <Link :href="route('import-records.show', { importer: importer.id, record: record['id'] })" class="text-blue-600 hover:underline">
                             Ver
                         </Link>
                     </td>
